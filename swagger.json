@@ -1,0 +1,74 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "WebAPIPedidos",
+    "version": "1.0"
+  },
+  "paths": {
+    "/v1/Fornecedor/todos": {
+      "get": {
+        "tags": [
+          "Fornecedor"
+        ],
+        "summary": "Lista todos fornecedores cadastrados.",
+        "responses": {
+          "200": {
+            "description": "Todos fornecedores encontrados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FornecedorResponse"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno de sistema.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemaResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "FornecedorResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Representação de um fornecedor"
+      },
+      "ProblemaResponse": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "integer",
+            "description": "Número de identificação do problema",
+            "format": "int32",
+            "nullable": true
+          },
+          "mensagem": {
+            "type": "string",
+            "description": "Mensagem do problema ocorrido",
+            "nullable": true
+          },
+          "descricao": {
+            "type": "string",
+            "description": "Descrição do problema ocorrido",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Representação de um problema ocorrido na aplicação"
+      }
+    }
+  }
+}
