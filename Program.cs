@@ -62,12 +62,15 @@ var conexao = Environment.GetEnvironmentVariable("URL_DB_WebAPIPedidos");
 builder.Services.AddDbContextPool<ContextRepository>(options =>
 {
     options.UseSqlServer(conexao, providerOptions => { providerOptions.EnableRetryOnFailure(); });
+    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
-builder.Services.AddScoped<IFornecedorRepositoty, FornecedorRepositoty>();
+builder.Services.AddTransient<IFornecedorRepositoty, FornecedorRepositoty>();
+builder.Services.AddTransient<IProdutoRepositoty, ProdutoRepositoty>();
 #endregion
 
 #region Servços
 builder.Services.AddScoped<IFornecedorService, FornecedorService>();
+builder.Services.AddScoped<IProdutoService, ProdutoService>();
 #endregion
 
 #region Fachadas
@@ -76,6 +79,7 @@ builder.Services.AddScoped<IFornecedorService, FornecedorService>();
 
 #region Mapeamentos
 builder.Services.AddScoped<IFornecedorMapper, FornecedorMapper>();
+builder.Services.AddScoped<IProdutoMapper, ProdutoMapper>();
 #endregion
 
 builder.Services.AddControllers();
