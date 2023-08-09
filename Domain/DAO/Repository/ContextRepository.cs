@@ -10,6 +10,7 @@ public class ContextRepository : DbContext
         this.Database.SetCommandTimeout(int.MaxValue);
     }
     public virtual DbSet<FornecedorEntity> Fornecedores { get; set; }
+    public virtual DbSet<ProdutoEntity> Produtos { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

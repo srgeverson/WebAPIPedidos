@@ -1,6 +1,4 @@
-﻿using WebAPIPedidos.Domain.Model.Entity;
-
-namespace WebAPIPedidos.Domain.Service
+﻿namespace WebAPIPedidos.Domain.Service
 {
     public interface IGenericService<T, P>
     {
