@@ -24,7 +24,7 @@ public class ProdutoController : ControllerBase
     }
 
     /// <summary>
-    /// Apagar Produto por ID.
+    /// Apagar produto por código.
     /// </summary>
     /// <response code="200">Produto encontrado.</response>
     /// <response code="400">Dados informados incorretamenten.</response>
@@ -35,15 +35,15 @@ public class ProdutoController : ControllerBase
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> ApagarPorId([FromQuery] int? id)
+    public async Task<IActionResult> ApagarPorId([FromQuery] int? codigo)
     {
         try
         {
-            if (id.HasValue)
+            if (codigo.HasValue)
             {
-                var produtoExistente = await _produtoService.BuscarPorId((int)id);
+                var produtoExistente = await _produtoService.BuscarPorId((int)codigo);
                 if (produtoExistente == null)
-                    throw new ProblemaException(404, String.Format("Produto com ID = {0} não foi encontrado!", id));
+                    throw new ProblemaException(404, String.Format("Produto com Código = {0} não foi encontrado!", codigo));
                 else
                 {
                     await _produtoService.Apagar(produtoExistente);
@@ -52,7 +52,7 @@ public class ProdutoController : ControllerBase
                 }
             }
             else
-                throw new ProblemaException(400, String.Format("ID = {0} inválido!", id));
+                throw new ProblemaException(400, String.Format("Código = {0} inválido!", codigo));
         }
         catch (ProblemaException pex)
         {
@@ -72,15 +72,15 @@ public class ProdutoController : ControllerBase
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> AtualizarProduto([FromQuery] int? id, [FromBody] ProdutoRequest request)
+    public async Task<IActionResult> AtualizarProduto([FromQuery] int? codigo, [FromBody] ProdutoRequest request)
     {
         try
         {
-            if (id.HasValue)
+            if (codigo.HasValue)
             {
-                var produto = await _produtoService.BuscarPorId((int)id);
+                var produto = await _produtoService.BuscarPorId((int)codigo);
                 if (produto == null)
-                    throw new ProblemaException(404, String.Format("Produto com ID = {0} não foi encontrado!", id));
+                    throw new ProblemaException(404, String.Format("Produto com Código = {0} não foi encontrado!", codigo));
                 else
                 {
                     var produtoNovo = _produtoMapper.ToEntity(request);
@@ -90,7 +90,7 @@ public class ProdutoController : ControllerBase
                 }
             }
             else
-                throw new ProblemaException(400, String.Format("ID = {0} inválido!", id));
+                throw new ProblemaException(400, String.Format("Código = {0} inválido!", codigo));
         }
         catch (ProblemaException pex)
         {
@@ -120,35 +120,35 @@ public class ProdutoController : ControllerBase
     }
 
     /// <summary>
-    /// Buscar Produto por ID.
+    /// Buscar Produto por código.
     /// </summary>
     /// <response code="200">Produto encontrado.</response>
     /// <response code="400">Dados informados incorretamenten.</response>
     /// <response code="404">Produto não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [HttpGet("por-id"), MapToApiVersion("1.0")]
+    [HttpGet("por-codigo"), MapToApiVersion("1.0")]
     [ProducesResponseType(typeof(ProdutoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> ProdutoPorId([FromQuery] int? id)
+    public async Task<IActionResult> ProdutoPorId([FromQuery] int? codigo)
     {
         try
         {
-            if (id.HasValue)
+            if (codigo.HasValue)
             {
-                var Produto = await _produtoService.BuscarPorId((int)id);
+                var Produto = await _produtoService.BuscarPorId((int)codigo);
                 if (Produto == null)
-                    throw new ProblemaException(404, String.Format("Produto com ID = {0} não foi encontrado!", id));
+                    throw new ProblemaException(404, String.Format("Produto com Código = {0} não foi encontrado!", codigo));
                 else
                     return Ok(Produto);
             }
             else
-                throw new ProblemaException(400, String.Format("ID = {0} inválido!", id));
+                throw new ProblemaException(400, String.Format("Código = {0} inválido!", codigo));
         }
         catch (ProblemaException pex)
         {
-            return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao consultar Produto por id", Descricao = pex.Message });
+            return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao consultar Produto por codigo", Descricao = pex.Message });
         }
     }
 
