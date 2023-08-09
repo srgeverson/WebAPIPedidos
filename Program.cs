@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
@@ -27,10 +28,9 @@ builder.Services.AddVersionedApiExplorer(setup =>
     setup.SubstituteApiVersionInUrl = true;
 });
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+#region Swagger 3.0 https://github.com/microsoft/aspnet-api-versioning/tree/master/samples/aspnetcore/SwaggerSample
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -39,8 +39,6 @@ builder.Services.AddSwaggerGen(options =>
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
-
-#region Swagger 3.0 https://github.com/microsoft/aspnet-api-versioning/tree/master/samples/aspnetcore/SwaggerSample
 
 builder.Services.AddApiVersioning(options =>
 {
@@ -57,13 +55,19 @@ builder.Services.AddVersionedApiExplorer(options =>
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 #endregion
 
+builder.Services.AddSingleton<IConfiguration>(_ => builder.Configuration);
+
 #region DAOs
-var conexao = Environment.GetEnvironmentVariable("CONNECTION_STRING_WebAPIPedidos");
-builder.Services.AddSingleton<IFornecedorRepositoty, FornecedorRepositoty>();
+var conexao = Environment.GetEnvironmentVariable("URL_DB_WebAPIPedidos");
+builder.Services.AddDbContextPool<ContextRepository>(options =>
+{
+    options.UseSqlServer(conexao, providerOptions => { providerOptions.EnableRetryOnFailure(); });
+});
+builder.Services.AddScoped<IFornecedorRepositoty, FornecedorRepositoty>();
 #endregion
 
 #region Servços
-builder.Services.AddSingleton<IFornecedorService, FornecedorService>();
+builder.Services.AddScoped<IFornecedorService, FornecedorService>();
 #endregion
 
 #region Fachadas
@@ -71,8 +75,10 @@ builder.Services.AddSingleton<IFornecedorService, FornecedorService>();
 #endregion
 
 #region Mapeamentos
-builder.Services.AddSingleton<IFornecedorMapper, FornecedorMapper>();
+builder.Services.AddScoped<IFornecedorMapper, FornecedorMapper>();
 #endregion
+
+builder.Services.AddControllers();
 
 var app = builder.Build();
 

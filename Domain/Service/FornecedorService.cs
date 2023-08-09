@@ -16,7 +16,8 @@ namespace WebAPIPedidos.Domain.Service
 
         public async Task<FornecedorEntity> Apagar(FornecedorEntity model)
         {
-            return await _fornecedorRepositoty.Delete(model);
+            await _fornecedorRepositoty.Delete(model);
+            return model;
         }
 
         public async Task<FornecedorEntity> Atualizar(FornecedorEntity model)
@@ -26,17 +27,19 @@ namespace WebAPIPedidos.Domain.Service
 
         public async Task<FornecedorEntity> BuscarPorId(int id)
         {
-            return await _fornecedorRepositoty.GetById(id);
+            return await _fornecedorRepositoty.SelectById(id);
         }
 
         public async Task<IList<FornecedorEntity>> ListarTodos()
         {
-            return await _fornecedorRepositoty.SelectAll();
+            var list = await _fornecedorRepositoty.SelectAll();
+            return list.ToList();
         }
 
         public async Task<FornecedorEntity> Salvar(FornecedorEntity model)
         {
-            return await _fornecedorRepositoty.Insert(model);
+                await _fornecedorRepositoty.Insert(model);
+            return model;
         }
     }
 }
