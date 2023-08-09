@@ -1,0 +1,8 @@
+﻿CREATE TABLE [dbo].[fornecedores]
+(
+	Id INT NOT NULL IDENTITY(1, 1) PRIMARY KEY,
+	CNPJ VARCHAR(14),
+	UF CHAR(2),
+	EmailContato VARCHAR(100),
+	NomeContato VARCHAR(100),
+);
