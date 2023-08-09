@@ -1,5 +1,6 @@
 ﻿
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace WebAPIPedidos.API.V1.Model.Request
 {
@@ -8,7 +9,7 @@ namespace WebAPIPedidos.API.V1.Model.Request
     /// </summary>
     public class FornecedorRequest
     {
-        private string? _cnpj;
+        private long? _cnpj;
         private string? _uf;
         private string? _emailContato;
         private string? _nomeContato;
@@ -16,8 +17,9 @@ namespace WebAPIPedidos.API.V1.Model.Request
         /// <summary>
         /// CNPJ do fornecedor
         /// </summary>
-        [DefaultValue("12123123123412")]
-        public string? Cnpj { get => _cnpj; set => _cnpj = value; }
+        [Required(ErrorMessage = "Este campo é obrigatório")]
+        [DefaultValue(12123123123412)]
+        public long? Cnpj { get => _cnpj; set => _cnpj = value; }
         /// <summary>
         /// UF do forncedor
         /// </summary>
