@@ -1,4 +1,9 @@
-﻿namespace WebAPIPedidos.Domain.Model.Entity;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace WebAPIPedidos.Domain.Model.Entity;
+
+[Table("fornecedores")]
 public class FornecedorEntity
 {
     private int? _id;
@@ -7,6 +12,7 @@ public class FornecedorEntity
     private string? _emailContato;
     private string? _nomeContato;
 
+    [Key]
     public int? Id { get => _id; set => _id = value; }
     public string? Cnpj { get => _cnpj; set => _cnpj = value; }
     public string? Uf { get => _uf; set => _uf = value; }
