@@ -78,14 +78,15 @@ public class ProdutoController : ControllerBase
         {
             if (id.HasValue)
             {
-                var Produto = await _produtoService.BuscarPorId((int)id);
-                if (Produto == null)
+                var produto = await _produtoService.BuscarPorId((int)id);
+                if (produto == null)
                     throw new ProblemaException(404, String.Format("Produto com ID = {0} não foi encontrado!", id));
                 else
                 {
                     var produtoNovo = _produtoMapper.ToEntity(request);
-                    var produtoAtualizado = await _produtoService.Atualizar(Produto);
-                    return Ok(Produto);
+                    produtoNovo.Codigo=produto.Codigo;
+                    var produtoAtualizado = await _produtoService.Atualizar(produtoNovo);
+                    return Ok(produtoAtualizado);
                 }
             }
             else
