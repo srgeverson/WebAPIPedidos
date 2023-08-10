@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
-using WebAPIPedidos.API.V1.Exception;
+using WebAPIPedidos.API.V1.ExceptionHandler;
 using WebAPIPedidos.API.V1.Model.Request;
 using WebAPIPedidos.API.V1.Model.Response;
 using WebAPIPedidos.API.V1.ModelMapper;
@@ -58,6 +58,10 @@ public class PedidoController : ControllerBase
         catch (ProblemaException pex)
         {
             return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao apagar Pedido", Descricao = pex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 
@@ -142,6 +146,10 @@ public class PedidoController : ControllerBase
         {
             return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao atualizar Pedido", Descricao = pex.Message });
         }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+        }
     }
 
     #region Documentação
@@ -170,6 +178,10 @@ public class PedidoController : ControllerBase
         catch (ProblemaException pex)
         {
             return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao consultar todos Pedido", Descricao = pex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 
@@ -208,6 +220,10 @@ public class PedidoController : ControllerBase
         catch (ProblemaException pex)
         {
             return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao consultar Pedido por id", Descricao = pex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 
@@ -270,6 +286,10 @@ public class PedidoController : ControllerBase
         catch (ProblemaException pex)
         {
             return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao cadastrar Pedido", Descricao = pex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 }

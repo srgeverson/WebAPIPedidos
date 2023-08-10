@@ -1,5 +1,5 @@
 ﻿using System.Security.Principal;
-using WebAPIPedidos.API.V1.Exception;
+using WebAPIPedidos.API.V1.ExceptionHandler;
 using WebAPIPedidos.Domain.Model.Entity;
 using WebAPIPedidos.Domain.Service;
 

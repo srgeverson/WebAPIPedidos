@@ -1,9 +1,9 @@
-﻿namespace WebAPIPedidos.API.V1.Exception
+﻿namespace WebAPIPedidos.API.V1.ExceptionHandler
 {
     /// <summary>
     /// Representação genérica de um erro ocorrido na aplicação
     /// </summary>
-    public class ProblemaException : HttpRequestException
+    public class ProblemaException : Exception
     {
         private int _id;
 
