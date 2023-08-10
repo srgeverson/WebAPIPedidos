@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebAPIPedidos.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class V1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,8 +15,7 @@ namespace WebAPIPedidos.Migrations
                 name: "fornecedores",
                 columns: table => new
                 {
-                    Cnpj = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Cnpj = table.Column<long>(type: "bigint", nullable: false),
                     Uf = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     EmailContato = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NomeContato = table.Column<string>(type: "nvarchar(max)", nullable: true)

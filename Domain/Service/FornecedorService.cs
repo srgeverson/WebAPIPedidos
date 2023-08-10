@@ -38,7 +38,7 @@ namespace WebAPIPedidos.Domain.Service
 
         public async Task<FornecedorEntity> Salvar(FornecedorEntity model)
         {
-                await _fornecedorRepositoty.Insert(model);
+            await _fornecedorRepositoty.Insert(model);
             return model;
         }
     }

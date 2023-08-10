@@ -26,10 +26,7 @@ namespace WebAPIPedidos.Migrations
             modelBuilder.Entity("WebAPIPedidos.Domain.Model.Entity.FornecedorEntity", b =>
                 {
                     b.Property<long?>("Cnpj")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long?>("Cnpj"));
 
                     b.Property<string>("EmailContato")
                         .HasColumnType("nvarchar(max)");

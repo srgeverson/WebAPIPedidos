@@ -49,7 +49,7 @@ $ git push -u origin main
 $ setx URL_DB_WebAPIPedidos "Data Source=localhost; Initial Catalog=db_teste;User ID=user_teste;Password=@G12345678;Application Name=WebAPIPedidos;TrustServerCertificate=True;" /M
 
 # Gerar o arquivo de migração SQL
-$ Add-Migration InitialCreate
+$ Add-Migration v1
 
 # Executar a migração anteriormente gerada
 $ Update-Database
