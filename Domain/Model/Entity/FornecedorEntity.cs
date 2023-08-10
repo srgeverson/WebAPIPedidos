@@ -11,7 +11,7 @@ public class FornecedorEntity
     private string? _emailContato;
     private string? _nomeContato;
 
-    [Key]
+    [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
     public long? Cnpj { get => _cnpj; set => _cnpj = value; }
     public string? Uf { get => _uf; set => _uf = value; }
     public string? EmailContato { get => _emailContato; set => _emailContato = value; }

@@ -12,8 +12,8 @@ using WebAPIPedidos.Domain.DAO.Repository;
 namespace WebAPIPedidos.Migrations
 {
     [DbContext(typeof(ContextRepository))]
-    [Migration("20230810195235_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20230810220050_V1")]
+    partial class V1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -29,10 +29,7 @@ namespace WebAPIPedidos.Migrations
             modelBuilder.Entity("WebAPIPedidos.Domain.Model.Entity.FornecedorEntity", b =>
                 {
                     b.Property<long?>("Cnpj")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long?>("Cnpj"));
 
                     b.Property<string>("EmailContato")
                         .HasColumnType("nvarchar(max)");
