@@ -7,6 +7,7 @@ using System.Reflection;
 using WebAPIPedidos.API.V1.ModelMapper;
 using WebAPIPedidos.Core;
 using WebAPIPedidos.Domain.DAO.Repository;
+using WebAPIPedidos.Domain.Facade;
 using WebAPIPedidos.Domain.Service;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -66,20 +67,23 @@ builder.Services.AddDbContextPool<ContextRepository>(options =>
 });
 builder.Services.AddTransient<IFornecedorRepositoty, FornecedorRepositoty>();
 builder.Services.AddTransient<IProdutoRepositoty, ProdutoRepositoty>();
+builder.Services.AddTransient<IPedidoRepositoty, PedidoRepositoty>();
 #endregion
 
 #region Servços
 builder.Services.AddScoped<IFornecedorService, FornecedorService>();
 builder.Services.AddScoped<IProdutoService, ProdutoService>();
+builder.Services.AddScoped<IPedidoService, PedidoService>();
 #endregion
 
 #region Fachadas
-//builder.Services.AddSingleton<ICompraFacade, CompraFacade>();
+builder.Services.AddScoped<ICompraFacade, CompraFacade>();
 #endregion
 
 #region Mapeamentos
 builder.Services.AddScoped<IFornecedorMapper, FornecedorMapper>();
 builder.Services.AddScoped<IProdutoMapper, ProdutoMapper>();
+builder.Services.AddScoped<IPedidoMapper, PedidoMapper>();
 #endregion
 
 builder.Services.AddControllers();
