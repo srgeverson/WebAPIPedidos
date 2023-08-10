@@ -45,6 +45,8 @@ public class PedidoController : ControllerBase
             if (id.CodigoPedido.HasValue || id.Produto.HasValue || id.Fornecedor.HasValue)
             {
                 var idEntity = _pedidoMapper.ToListIdEntity(id);
+                if (idEntity == null)
+                    throw new ProblemaException(404, String.Format("Não há dados para o pedido informado!", id));
                 await _compraFacade.ExcluirPedido(idEntity);
 
                 return Ok(new PadraoResponse() { Mensagens = new List<string>() { "Pedido apagado com sucesso!" } });
