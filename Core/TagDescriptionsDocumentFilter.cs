@@ -10,6 +10,7 @@ public class TagDescriptionsDocumentFilter : IDocumentFilter
         var todasTags = new List<OpenApiTag> {
                 new OpenApiTag { Name = "Fornecedor", Description = "Controlador responsável pelas operações relativas ao fornecedor." },
                 new OpenApiTag { Name = "Produto", Description = "Controlador responsável pelas operações relativas ao produto." },
+                new OpenApiTag { Name = "Pedido", Description = "Controlador responsável pelas operações relativas ao pedido." },
             };
         var tagsRespectivaVersao = new List<OpenApiTag>();
         todasTags.ForEach(tag =>

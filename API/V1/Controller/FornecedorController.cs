@@ -24,7 +24,7 @@ public class FornecedorController : ControllerBase
     }
 
     /// <summary>
-    /// Apagar fornecedor por ID.
+    /// Apagar fornecedor por CNPJ.
     /// </summary>
     /// <response code="200">Fornecedor encontrado.</response>
     /// <response code="400">Dados informados incorretamenten.</response>
@@ -43,7 +43,7 @@ public class FornecedorController : ControllerBase
             {
                 var fornecedorExistente = await _fornecedorService.BuscarPorId((int)id);
                 if (fornecedorExistente == null)
-                    throw new ProblemaException(404, String.Format("Fornecedor com ID = {0} não foi encontrado!", id));
+                    throw new ProblemaException(404, String.Format("Fornecedor com CNPJ = {0} não foi encontrado!", id));
                 else
                 {
                     await _fornecedorService.Apagar(fornecedorExistente);
@@ -52,7 +52,7 @@ public class FornecedorController : ControllerBase
                 }
             }
             else
-                throw new ProblemaException(400, String.Format("ID = {0} inválido!", id));
+                throw new ProblemaException(400, String.Format("CNPJ = {0} inválido!", id));
         }
         catch (ProblemaException pex)
         {
@@ -72,24 +72,25 @@ public class FornecedorController : ControllerBase
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> AtualizarFornecedor([FromQuery] int? id, [FromBody] FornecedorRequest request)
+    public async Task<IActionResult> AtualizarFornecedor([FromQuery] long? cnpj, [FromBody] FornecedorRequest request)
     {
         try
         {
-            if (id.HasValue)
+            if (cnpj.HasValue)
             {
-                var fornecedor = await _fornecedorService.BuscarPorId((int)id);
+                var fornecedor = await _fornecedorService.BuscarPorId(cnpj);
                 if (fornecedor == null)
-                    throw new ProblemaException(404, String.Format("Fornecedor com ID = {0} não foi encontrado!", id));
+                    throw new ProblemaException(404, String.Format("Fornecedor com ID = {0} não foi encontrado!", cnpj));
                 else
                 {
                     var fornecedorNovo = _fornecedorMapper.ToEntity(request);
-                    var fornecedorAtualizado = await _fornecedorService.Atualizar(fornecedor);
-                    return Ok(fornecedor);
+                    fornecedorNovo.Cnpj = cnpj;
+                    var fornecedorAtualizado = await _fornecedorService.Atualizar(fornecedorNovo);
+                    return Ok(fornecedorAtualizado);
                 }
             }
             else
-                throw new ProblemaException(400, String.Format("ID = {0} inválido!", id));
+                throw new ProblemaException(400, String.Format("CNPJ = {0} inválido!", cnpj));
         }
         catch (ProblemaException pex)
         {
@@ -125,25 +126,25 @@ public class FornecedorController : ControllerBase
     /// <response code="400">Dados informados incorretamenten.</response>
     /// <response code="404">Fornecedor não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [HttpGet("por-id"), MapToApiVersion("1.0")]
+    [HttpGet("por-cnpj"), MapToApiVersion("1.0")]
     [ProducesResponseType(typeof(FornecedorResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> FornecedorPorId([FromQuery] int? id)
+    public async Task<IActionResult> FornecedorPorId([FromQuery] long? cnpj)
     {
         try
         {
-            if (id.HasValue)
+            if (cnpj.HasValue)
             {
-                var fornecedor = await _fornecedorService.BuscarPorId((int)id);
+                var fornecedor = await _fornecedorService.BuscarPorId(cnpj);
                 if (fornecedor == null)
-                    throw new ProblemaException(404, String.Format("Fornecedor com ID = {0} não foi encontrado!", id));
+                    throw new ProblemaException(404, String.Format("Fornecedor com ID = {0} não foi encontrado!", cnpj));
                 else
                     return Ok(fornecedor);
             }
             else
-                throw new ProblemaException(400, String.Format("ID = {0} inválido!", id));
+                throw new ProblemaException(400, String.Format("CNPJ = {0} inválido!", cnpj));
         }
         catch (ProblemaException pex)
         {
@@ -161,12 +162,17 @@ public class FornecedorController : ControllerBase
     [HttpPost("cadastrar"), MapToApiVersion("1.0")]
     [ProducesResponseType(typeof(FornecedorResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SalvarFornecedor([FromBody] FornecedorRequest request)
+    public async Task<IActionResult> SalvarFornecedor([FromBody] FornecedorRequest? request)
     {
         try
         {
+            if (request == null)
+                throw new ProblemaException(400, "Dados não informado!");
+            var cnpjExistente = await _fornecedorService.BuscarPorId(request.Cnpj);
+            if (cnpjExistente != null)
+                throw new ProblemaException(409, "Fornecedor com o CNPJ informado já está cadastrado!");
             var fornecedorNovo = _fornecedorMapper.ToEntity(request);
             var fornecedorCadastrado = await _fornecedorService.Salvar(fornecedorNovo);
             return Ok(fornecedorCadastrado);
