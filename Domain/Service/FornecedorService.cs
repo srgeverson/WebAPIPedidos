@@ -3,7 +3,7 @@ using WebAPIPedidos.Domain.Model.Entity;
 
 namespace WebAPIPedidos.Domain.Service
 {
-    public interface IFornecedorService: IGenericService<FornecedorEntity, int> { }
+    public interface IFornecedorService: IGenericService<FornecedorEntity, long?> { }
 
     public class FornecedorService : IFornecedorService
     {
@@ -25,7 +25,7 @@ namespace WebAPIPedidos.Domain.Service
             return await _fornecedorRepositoty.Update(model);
         }
 
-        public async Task<FornecedorEntity> BuscarPorId(int id)
+        public async Task<FornecedorEntity> BuscarPorId(long? id)
         {
             return await _fornecedorRepositoty.SelectById(id);
         }
