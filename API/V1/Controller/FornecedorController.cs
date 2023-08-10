@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
-using WebAPIPedidos.API.V1.Exception;
+using WebAPIPedidos.API.V1.ExceptionHandler;
 using WebAPIPedidos.API.V1.Model.Request;
 using WebAPIPedidos.API.V1.Model.Response;
 using WebAPIPedidos.API.V1.ModelMapper;
@@ -23,6 +23,7 @@ public class FornecedorController : ControllerBase
         _fornecedorMapper = fornecedorMapper;
     }
 
+    #region Documentação
     /// <summary>
     /// Apagar fornecedor por CNPJ.
     /// </summary>
@@ -30,11 +31,12 @@ public class FornecedorController : ControllerBase
     /// <response code="400">Dados informados incorretamenten.</response>
     /// <response code="404">Fornecedor não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [HttpDelete("apagar"), MapToApiVersion("1.0")]
     [ProducesResponseType(typeof(PadraoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
+    #endregion
+    [HttpDelete("apagar"), MapToApiVersion("1.0")]
     public async Task<IActionResult> ApagarPorId([FromQuery] int? id)
     {
         try
@@ -58,8 +60,13 @@ public class FornecedorController : ControllerBase
         {
             return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao apagar fornecedor", Descricao = pex.Message });
         }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+        }
     }
 
+    #region Documentação
     /// <summary>
     /// Atualizar fornecedor.
     /// </summary>
@@ -67,11 +74,12 @@ public class FornecedorController : ControllerBase
     /// <response code="400">Dados informados incorretamenten.</response>
     /// <response code="404">Fornecedor não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [HttpPut("atualizar"), MapToApiVersion("1.0")]
     [ProducesResponseType(typeof(FornecedorResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
+    #endregion
+    [HttpPut("atualizar"), MapToApiVersion("1.0")]
     public async Task<IActionResult> AtualizarFornecedor([FromQuery] long? cnpj, [FromBody] FornecedorRequest request)
     {
         try
@@ -96,16 +104,22 @@ public class FornecedorController : ControllerBase
         {
             return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao atualizar fornecedor", Descricao = pex.Message });
         }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+        }
     }
 
+    #region Documentação
     /// <summary>
     /// Lista todos fornecedores cadastrados.
     /// </summary>
     /// <response code="200">Todos fornecedores encontrados.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [HttpGet("todos"), MapToApiVersion("1.0")]
     [ProducesResponseType(typeof(IList<FornecedorResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
+    #endregion
+    [HttpGet("todos"), MapToApiVersion("1.0")]
     public async Task<IActionResult> Fornecedores()
     {
         try
@@ -117,8 +131,13 @@ public class FornecedorController : ControllerBase
         {
             return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao consultar todos fornecedor", Descricao = pex.Message });
         }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+        }
     }
 
+    #region Documentação
     /// <summary>
     /// Buscar fornecedor por ID.
     /// </summary>
@@ -126,11 +145,12 @@ public class FornecedorController : ControllerBase
     /// <response code="400">Dados informados incorretamenten.</response>
     /// <response code="404">Fornecedor não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [HttpGet("por-cnpj"), MapToApiVersion("1.0")]
     [ProducesResponseType(typeof(FornecedorResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
+    #endregion
+    [HttpGet("por-cnpj"), MapToApiVersion("1.0")]
     public async Task<IActionResult> FornecedorPorId([FromQuery] long? cnpj)
     {
         try
@@ -150,8 +170,13 @@ public class FornecedorController : ControllerBase
         {
             return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao consultar fornecedor por id", Descricao = pex.Message });
         }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+        }
     }
 
+    #region Documentação
     /// <summary>
     /// Cadastrar fornecedor.
     /// </summary>
@@ -159,11 +184,12 @@ public class FornecedorController : ControllerBase
     /// <response code="400">Dados informados incorretamenten.</response>
     /// <response code="409">Fornecedor duplicado.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [HttpPost("cadastrar"), MapToApiVersion("1.0")]
     [ProducesResponseType(typeof(FornecedorResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
+    #endregion
+    [HttpPost("cadastrar"), MapToApiVersion("1.0")]
     public async Task<IActionResult> SalvarFornecedor([FromBody] FornecedorRequest? request)
     {
         try
@@ -180,6 +206,10 @@ public class FornecedorController : ControllerBase
         catch (ProblemaException pex)
         {
             return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao cadastrar fornecedor", Descricao = pex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 }

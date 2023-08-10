@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
-using WebAPIPedidos.API.V1.Exception;
+using WebAPIPedidos.API.V1.ExceptionHandler;
 using WebAPIPedidos.API.V1.Model.Request;
 using WebAPIPedidos.API.V1.Model.Response;
 using WebAPIPedidos.API.V1.ModelMapper;
@@ -23,6 +23,7 @@ public class ProdutoController : ControllerBase
         _produtoMapper = produtoMapper;
     }
 
+    #region Documentação
     /// <summary>
     /// Apagar produto por código.
     /// </summary>
@@ -30,11 +31,12 @@ public class ProdutoController : ControllerBase
     /// <response code="400">Dados informados incorretamenten.</response>
     /// <response code="404">Produto não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [HttpDelete("apagar"), MapToApiVersion("1.0")]
     [ProducesResponseType(typeof(PadraoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
+    #endregion
+    [HttpDelete("apagar"), MapToApiVersion("1.0")]
     public async Task<IActionResult> ApagarPorId([FromQuery] int? codigo)
     {
         try
@@ -58,8 +60,13 @@ public class ProdutoController : ControllerBase
         {
             return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao apagar Produto", Descricao = pex.Message });
         }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+        }
     }
 
+    #region Documentação
     /// <summary>
     /// Atualizar Produto.
     /// </summary>
@@ -67,11 +74,12 @@ public class ProdutoController : ControllerBase
     /// <response code="400">Dados informados incorretamenten.</response>
     /// <response code="404">Produto não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [HttpPut("atualizar"), MapToApiVersion("1.0")]
     [ProducesResponseType(typeof(ProdutoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
+    #endregion
+    [HttpPut("atualizar"), MapToApiVersion("1.0")]
     public async Task<IActionResult> AtualizarProduto([FromQuery] int? codigo, [FromBody] ProdutoRequest request)
     {
         try
@@ -96,16 +104,22 @@ public class ProdutoController : ControllerBase
         {
             return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao atualizar Produto", Descricao = pex.Message });
         }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+        }
     }
 
+    #region Documentação
     /// <summary>
     /// Lista todos produtoes cadastrados.
     /// </summary>
     /// <response code="200">Todos produtoes encontrados.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [HttpGet("todos"), MapToApiVersion("1.0")]
     [ProducesResponseType(typeof(IList<ProdutoResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
+    #endregion
+    [HttpGet("todos"), MapToApiVersion("1.0")]
     public async Task<IActionResult> Produtoes()
     {
         try
@@ -117,8 +131,13 @@ public class ProdutoController : ControllerBase
         {
             return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao consultar todos Produto", Descricao = pex.Message });
         }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+        }
     }
 
+    #region Documentação
     /// <summary>
     /// Buscar Produto por código.
     /// </summary>
@@ -126,11 +145,12 @@ public class ProdutoController : ControllerBase
     /// <response code="400">Dados informados incorretamenten.</response>
     /// <response code="404">Produto não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [HttpGet("por-codigo"), MapToApiVersion("1.0")]
     [ProducesResponseType(typeof(ProdutoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
+    #endregion
+    [HttpGet("por-codigo"), MapToApiVersion("1.0")]
     public async Task<IActionResult> ProdutoPorId([FromQuery] int? codigo)
     {
         try
@@ -150,8 +170,13 @@ public class ProdutoController : ControllerBase
         {
             return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao consultar Produto por codigo", Descricao = pex.Message });
         }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+        }
     }
 
+    #region Documentação
     /// <summary>
     /// Cadastrar Produto.
     /// </summary>
@@ -159,11 +184,12 @@ public class ProdutoController : ControllerBase
     /// <response code="400">Dados informados incorretamenten.</response>
     /// <response code="409">Produto duplicado.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [HttpPost("cadastrar"), MapToApiVersion("1.0")]
     [ProducesResponseType(typeof(ProdutoResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
+    #endregion
+    [HttpPost("cadastrar"), MapToApiVersion("1.0")]
     public async Task<IActionResult> SalvarProduto([FromBody] ProdutoRequest request)
     {
         try
@@ -175,6 +201,10 @@ public class ProdutoController : ControllerBase
         catch (ProblemaException pex)
         {
             return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao cadastrar Produto", Descricao = pex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 }

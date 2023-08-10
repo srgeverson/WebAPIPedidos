@@ -1,5 +1,4 @@
-# WebAPIPedidos
-API de Gerenciamento de Pedidos.
+# <a href="https://webapipedidos.azurewebsites.net/swagger/index.html">WebAPIPedidos - API de Gerenciamento de Pedidos</a>
 
 ## 📌 Versão 1.0.0
 
