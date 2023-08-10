@@ -13,6 +13,7 @@ Antes de começar, você vai precisar ter instalado em sua máquina as seguintes
 * **Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer 5.1.0**
 * **Microsoft.EntityFrameworkCore.SqlServer 7.0.10**
 * **Swashbuckle.AspNetCore 6.5.0**
+* **Microsoft.EntityFrameworkCore.Tools 7.0.10**
 
 ## 🛠️ Constrção da aplicação
 
@@ -46,6 +47,12 @@ $ git push -u origin main
 
 # Variável de ambiente que armazena a URL de conexão com o banco de dados
 $ setx URL_DB_WebAPIPedidos "Data Source=localhost; Initial Catalog=db_teste;User ID=user_teste;Password=@G12345678;Application Name=WebAPIPedidos;TrustServerCertificate=True;" /M
+
+# Gerar o arquivo de migração SQL
+$ Add-Migration InitialCreate
+
+# Executar a migração anteriormente gerada
+$ Update-Database
 
 ```
 
