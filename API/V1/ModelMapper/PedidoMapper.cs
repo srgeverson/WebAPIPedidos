@@ -12,6 +12,7 @@ public interface IPedidoMapper
     PedidoEntity ToEntity(PedidoRequest request);
     IList<PedidoEntity> ToListEntity(PedidoLoteRequest request);
     PedidoId ToListIdEntity(PedidoIdRequest id);
+    IList<PedidoResponse> ToListResponse(IList<PedidoEntity> pedidoCadastrado);
     PedidoResponse ToResponse(PedidoEntity entity);
 }
 public class PedidoMapper : Profile, IPedidoMapper
@@ -41,6 +42,13 @@ public class PedidoMapper : Profile, IPedidoMapper
         });
         var mapper = new Mapper(config);
         return mapper.Map<PedidoId>(id);
+    }
+
+    public IList<PedidoResponse> ToListResponse(IList<PedidoEntity> pedidos)
+    {
+        var itens = new List<PedidoResponse>();
+        pedidos.ToList().ForEach(i => itens.Add(ToResponse(i)));
+        return itens;
     }
 
     public PedidoResponse ToResponse(PedidoEntity entity)

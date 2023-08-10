@@ -7,10 +7,14 @@ namespace WebAPIPedidos.Domain.Facade;
 public interface ICompraFacade
 {
     Task<IList<PedidoEntity>> AlterarPedido(IList<PedidoEntity> pedidos);
+    Task<FornecedorEntity> BuscarFornecedorPorId(long? fornecedor);
+    Task<IList<PedidoEntity>> BuscarPedidoPorId(PedidoId pedidoId);
+    Task<ProdutoEntity> BuscarProdutoPorId(int? produto);
     Task<IList<PedidoEntity>> CadastrarPedido(IList<PedidoEntity> pedidos);
-    Task<PedidoEntity> ConsultarPedido(PedidoId id);
     Task<IList<PedidoEntity>> ExcluirPedido(PedidoId id);
+    Task<IList<PedidoEntity>> ExcluirPedido(IList<PedidoEntity> pedidos);
     Task<IList<PedidoEntity>> ListarTodosPedidos();
+    Task<int> UltimoCodigoPedido();
 }
 public class CompraFacade : ICompraFacade
 {
@@ -28,77 +32,80 @@ public class CompraFacade : ICompraFacade
     public async Task<IList<PedidoEntity>> AlterarPedido(IList<PedidoEntity> pedidos)
     {
         var pedidosAlteradoos = new List<PedidoEntity>();
-        ProdutoEntity produto;
-        FornecedorEntity fornecedor;
         foreach (var item in pedidos)
         {
-            if (item.Produto.HasValue)
-                produto = await _produtoService.BuscarPorId((int)item.Produto);
-            else
-                produto = null;
-            
-            var itemAdicionado = await _pedidoService.BuscarPorId(new PedidoId() { CodigoPedido = item.CodigoPedido, Fornecedor = item.Fornecedor, Produto = item.Produto });
-            if (itemAdicionado != null && produto != null)
-            {
-                item.ValorPedido = item.QuantidadeProduto * produto.Valor;
-                var pedidoCadastrado = await _pedidoService.Atualizar(item);
-                pedidosAlteradoos.Add(pedidoCadastrado);
-            }
-            else
-                pedidosAlteradoos.Add(item);
+            var pedidoCadastrado = await _pedidoService.Atualizar(item);
+            pedidosAlteradoos.Add(pedidoCadastrado);
         }
         return pedidosAlteradoos;
+    }
+
+    public async Task<FornecedorEntity?> BuscarFornecedorPorId(long? fornecedor)
+    {
+        return await _fornecedorService.BuscarPorId(fornecedor);
+    }
+
+    public async Task<ProdutoEntity?> BuscarProdutoPorId(int? produto)
+    {
+        return await _produtoService.BuscarPorId((int)produto);
     }
 
     public async Task<IList<PedidoEntity>> CadastrarPedido(IList<PedidoEntity> pedidos)
     {
         var pedidosCadastratos = new List<PedidoEntity>();
-        var ultimoCodigoPedido = await _pedidoService.UltimoCodigoPedido();
-        ProdutoEntity produto;
-        FornecedorEntity fornecedor;
         foreach (var item in pedidos)
         {
-            if (item.Produto.HasValue)
-                produto = await _produtoService.BuscarPorId((int)item.Produto);
-            else
-                produto = null;
-            if (item.Fornecedor.HasValue)
-                fornecedor = await _fornecedorService.BuscarPorId((int)item.Fornecedor);
-            else
-                fornecedor = null;
-            var itensAdicionados = await _pedidoService.BuscarPorId(new PedidoId() { CodigoPedido = ultimoCodigoPedido, Fornecedor = item.Fornecedor, Produto = item.Produto });
-            if (fornecedor != null && produto != null && itensAdicionados == null)
-            {
-                item.CodigoPedido = ultimoCodigoPedido;
-                item.DataPedido = DateTime.Now;
-                item.ValorPedido = item.QuantidadeProduto * produto.Valor;
-                var pedidoCadastrado = await _pedidoService.Salvar(item);
-                pedidosCadastratos.Add(pedidoCadastrado);
-            }
-            else
-                pedidosCadastratos.Add(item);
+            pedidosCadastratos.Add(await _pedidoService.Salvar(item));
         }
         return pedidosCadastratos;
     }
 
-    public async Task<PedidoEntity> ConsultarPedido(PedidoId id)
+    public async Task<IList<PedidoEntity>> BuscarPedidoPorId(PedidoId id)
     {
-        return await _pedidoService.BuscarPorId(id);
+        var pedidos = new List<PedidoEntity>();
+        if (id.Produto.HasValue || id.Fornecedor.HasValue)
+        {
+            var pedido = await _pedidoService.BuscarPorId(id);
+            if (pedido != null)
+                pedidos.Add(pedido);
+        }
+        else
+        {
+            var pedidosPorCodigo = await _pedidoService.BuscarPorId(id.CodigoPedido);
+            pedidos = pedidosPorCodigo.ToList();
+        }
+        return pedidos;
     }
 
     public async Task<IList<PedidoEntity>> ExcluirPedido(PedidoId id)
     {
-        var produtoExistente = await ConsultarPedido(id);
-        if (produtoExistente == null)
+        var pedidos = await BuscarPedidoPorId(id);
+        if (pedidos == null)
             throw new ProblemaException(404, String.Format("Pedido com ID = {0} não foi encontrado!", id));
         else
-        {
-        }
-        throw new NotImplementedException();
+            foreach (var item in pedidos)
+            {
+                await _pedidoService.Apagar(item);
+            }
+        return pedidos;
     }
 
     public async Task<IList<PedidoEntity>> ListarTodosPedidos()
     {
        return await _pedidoService.ListarTodos();
+    }
+
+    public async Task<int> UltimoCodigoPedido()
+    {
+        return await _pedidoService.UltimoCodigoPedido();
+    }
+
+    public async Task<IList<PedidoEntity>> ExcluirPedido(IList<PedidoEntity> pedidos)
+    {
+        foreach (var item in pedidos)
+        {
+            await _pedidoService.Apagar(item);
+        }
+        return pedidos;
     }
 }

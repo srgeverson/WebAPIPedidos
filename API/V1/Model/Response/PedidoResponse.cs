@@ -1,20 +1,17 @@
-﻿namespace WebAPIPedidos.API.V1.Model.Response
+﻿using WebAPIPedidos.Domain.Model.Entity;
+
+namespace WebAPIPedidos.API.V1.Model.Response
 {
     /// <summary>
     /// Representação de um pedido processado pela aplicação
     /// </summary>
     public class PedidoResponse
     {
-        private int? _codigoPedido;
         private long? _fornecedor;
         private int? _produto;
         private int? _quantidadeProduto;
         private DateTime? _dataPedido;
         private decimal? _valorPedido;
-        /// <summary>
-        /// Código do pedido
-        /// </summary>
-        public int? CodigoPedido { get => _codigoPedido; set => _codigoPedido = value; }
         /// <summary>
         /// CNPJ do Fornecedor
         /// </summary>

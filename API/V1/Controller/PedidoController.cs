@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
-using System.Security.Principal;
 using WebAPIPedidos.API.V1.Exception;
 using WebAPIPedidos.API.V1.Model.Request;
 using WebAPIPedidos.API.V1.Model.Response;
 using WebAPIPedidos.API.V1.ModelMapper;
 using WebAPIPedidos.Domain.Facade;
 using WebAPIPedidos.Domain.Model.Entity;
-using WebAPIPedidos.Domain.Service;
 
 namespace WebAPIPedidos.API.V1.Controller;
 
@@ -26,6 +24,7 @@ public class PedidoController : ControllerBase
         _pedidoMapper = pedidoMapper;
     }
 
+    #region Documentação
     /// <summary>
     /// Apagar Pedido por ID.
     /// </summary>
@@ -33,12 +32,13 @@ public class PedidoController : ControllerBase
     /// <response code="400">Dados informados incorretamenten.</response>
     /// <response code="404">Pedido não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [HttpDelete("apagar"), MapToApiVersion("1.0")]
     [ProducesResponseType(typeof(PadraoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> ApagarPorId([FromQuery] PedidoIdRequest id)
+    #endregion
+    [HttpDelete("apagar"), MapToApiVersion("1.0")]
+    public async Task<IActionResult> ApagarPorCodigoPedido([FromQuery] PedidoIdRequest id)
     {
         try
         {
@@ -58,6 +58,7 @@ public class PedidoController : ControllerBase
         }
     }
 
+    #region Documentação
     /// <summary>
     /// Atualizar Pedido.
     /// </summary>
@@ -65,31 +66,74 @@ public class PedidoController : ControllerBase
     /// <response code="400">Dados informados incorretamenten.</response>
     /// <response code="404">Pedido não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [HttpPut("atualizar"), MapToApiVersion("1.0")]
     [ProducesResponseType(typeof(PedidoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
+    #endregion
+    [HttpPut("atualizar"), MapToApiVersion("1.0")]
     public async Task<IActionResult> AtualizarPedido([FromQuery] PedidoIdRequest id, [FromBody] PedidoLoteRequest request)
     {
         try
         {
-            if (id.CodigoPedido.HasValue || id.Produto.HasValue || id.Fornecedor.HasValue)
+            
+            var produtoNovo = _pedidoMapper.ToListEntity(request);
+            var pedidosParaCadastrar = new List<PedidoEntity>();
+            var pedidosParaAlterar = new List<PedidoEntity>();
+            var pedidosParaExcluir = new List<PedidoEntity>();
+            var pedidosResponse = new PedidoLoteResponse();
+            var mensagens = new List<string>();
+            foreach (var item in produtoNovo)
             {
-                var idEntity = _pedidoMapper.ToListIdEntity(id);
-                var produtoExistente = await _compraFacade.ConsultarPedido(idEntity);
-                if (produtoExistente == null)
-                    throw new ProblemaException(404, String.Format("Pedido com ID = {0} não foi encontrado!", id));
+                ProdutoEntity produto = null;
+                FornecedorEntity fornecedor = null;
+                if (item.Produto.HasValue)
+                    produto = await _compraFacade.BuscarProdutoPorId(item.Produto);
+                if (item.Fornecedor.HasValue)
+                    fornecedor = await _compraFacade.BuscarFornecedorPorId(item.Fornecedor);
+                if (fornecedor != null && produto != null)
+                {
+                    item.CodigoPedido = id.CodigoPedido;
+                    item.DataPedido = DateTime.Now;
+                    item.ValorPedido = item.QuantidadeProduto * produto.Valor;
+                    var produtoExistente = await _compraFacade.BuscarPedidoPorId(new PedidoId() { CodigoPedido = item.CodigoPedido, Fornecedor = item.Fornecedor, Produto = item.Produto });
+                    if (!produtoExistente.Any())
+                        pedidosParaCadastrar.Add(item);
+                    else
+                    {
+                        if (item.ValorPedido > 0)
+                            pedidosParaAlterar.Add(item);
+                        else
+                            pedidosParaExcluir.Add(item);
+                    }
+                }
                 else
                 {
-                    var produtoNovo = _pedidoMapper.ToListEntity(request);
-                    produtoNovo.ToList().ForEach(p => p.CodigoPedido = id.CodigoPedido);
-                    var produtoAtualizado = await _compraFacade.AlterarPedido(produtoNovo);
-                    return Ok(produtoAtualizado);
+                    if (fornecedor == null)
+                        mensagens.Add(string.Concat("O fornecedor ", item.Fornecedor, " não foi processado pois não foi encontrado"));
+                    if (produto == null)
+                        mensagens.Add(string.Concat("O produto ", item.Produto, " não foi processado pois não foi encontrado"));
                 }
             }
+
+            var pedidoAlterado = await _compraFacade.AlterarPedido(pedidosParaAlterar);
+            var pedidoCadastrado = await _compraFacade.CadastrarPedido(pedidosParaCadastrar);
+            var pedidoExcluido = await _compraFacade.ExcluirPedido(pedidosParaExcluir);
+            pedidosResponse.CodigoPedido = id.CodigoPedido;
+            mensagens.AddRange(pedidosParaAlterar.Select(p => string.Concat("Produdo ", p.Produto, " alterado no pedido")).ToList());
+            mensagens.AddRange(pedidosParaAlterar.Select(p => string.Concat("Produdo ", p.Produto, " incluído no pedido")).ToList());
+            mensagens.AddRange(pedidosParaExcluir.Select(p => string.Concat("Produdo ", p.Produto, " removido do pedido")).ToList());
+            pedidosResponse.Mensagens = mensagens;
+            var pedidosAlterado = new List<PedidoResponse>();
+            pedidosAlterado.AddRange(_pedidoMapper.ToListResponse(pedidoAlterado));
+            pedidosAlterado.AddRange(_pedidoMapper.ToListResponse(pedidoCadastrado));
+            pedidosAlterado.AddRange(_pedidoMapper.ToListResponse(pedidoExcluido));
+            pedidosResponse.Itens = pedidosAlterado;
+            if (pedidosAlterado.Any())
+                return Ok(pedidosResponse);
             else
-                throw new ProblemaException(400, String.Format("ID = {0} inválido!", id));
+                throw new ProblemaException(400, string.Join(", ", pedidosResponse.Mensagens));
+
         }
         catch (ProblemaException pex)
         {
@@ -97,20 +141,28 @@ public class PedidoController : ControllerBase
         }
     }
 
+    #region Documentação
     /// <summary>
     /// Lista todos produtoes cadastrados.
     /// </summary>
     /// <response code="200">Todos produtoes encontrados.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [HttpGet("todos"), MapToApiVersion("1.0")]
     [ProducesResponseType(typeof(IList<PedidoResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
+    #endregion
+    [HttpGet("todos"), MapToApiVersion("1.0")]
     public async Task<IActionResult> Pedidoes()
     {
         try
         {
             var lista = await _compraFacade.ListarTodosPedidos();
-            return Ok(lista);
+            var agrupadosPorPedido = lista.ToList().GroupBy(p => p.CodigoPedido).ToList();
+            var pedidos = new List<PedidoLoteResponse>();
+            agrupadosPorPedido.ForEach(p =>
+            {
+                pedidos.Add(new PedidoLoteResponse() { CodigoPedido = p.Key, Itens = _pedidoMapper.ToListResponse(p.ToList()) });
+            });
+            return Ok(pedidos);
         }
         catch (ProblemaException pex)
         {
@@ -118,6 +170,7 @@ public class PedidoController : ControllerBase
         }
     }
 
+    #region Documentação
     /// <summary>
     /// Buscar Pedido por ID.
     /// </summary>
@@ -125,11 +178,12 @@ public class PedidoController : ControllerBase
     /// <response code="400">Dados informados incorretamenten.</response>
     /// <response code="404">Pedido não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [HttpGet("por-id"), MapToApiVersion("1.0")]
-    [ProducesResponseType(typeof(PedidoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PedidoLoteResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
+    #endregion
+    [HttpGet("por-id"), MapToApiVersion("1.0")]
     public async Task<IActionResult> PedidoPorId([FromQuery] PedidoIdRequest id)
     {
         try
@@ -137,11 +191,13 @@ public class PedidoController : ControllerBase
             if (id.CodigoPedido.HasValue || id.Produto.HasValue || id.Fornecedor.HasValue)
             {
                 var idEntity = _pedidoMapper.ToListIdEntity(id);
-                var produtoExistente = await _compraFacade.ConsultarPedido(idEntity);
+                var produtoExistente = await _compraFacade.BuscarPedidoPorId(idEntity);
+                var pedidosResponse = new PedidoLoteResponse();
                 if (produtoExistente == null)
                     throw new ProblemaException(404, String.Format("Pedido com ID = {0}, produto = {1} e fornecedor = {2} não foi encontrado!", id.CodigoPedido, id.Fornecedor, id.Produto));
-                else
-                    return Ok(produtoExistente);
+                pedidosResponse.CodigoPedido = id.CodigoPedido;
+                pedidosResponse.Itens = _pedidoMapper.ToListResponse(produtoExistente);
+                return Ok(pedidosResponse);
             }
             else
                 throw new ProblemaException(400, String.Format("ID = {0} inválido!", id));
@@ -152,28 +208,61 @@ public class PedidoController : ControllerBase
         }
     }
 
+    #region Documentação
     /// <summary>
     /// Cadastrar Pedido.
     /// </summary>
-    /// <response code="201">Pedido encontrado.</response>
+    /// <response code="201">Pedido cadastrado.</response>
     /// <response code="400">Dados informados incorretamenten.</response>
     /// <response code="409">Pedido duplicado.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [HttpPost("cadastrar"), MapToApiVersion("1.0")]
-    [ProducesResponseType(typeof(PedidoResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(PedidoLoteResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
+    #endregion
+    [HttpPost("cadastrar"), MapToApiVersion("1.0")]
     public async Task<IActionResult> SalvarPedido([FromBody] PedidoLoteRequest request)
     {
         try
         {
+            var ultimoCodigoPedido = await _compraFacade.UltimoCodigoPedido();
             var produtoNovo = _pedidoMapper.ToListEntity(request);
-            var produtoCadastrado = await _compraFacade.CadastrarPedido(produtoNovo);
-            var itensProcessados = produtoCadastrado.Where(p => p.CodigoPedido == null);
-            if (itensProcessados.Count() > 0)
-                throw new ProblemaException(400, string.Join(",", itensProcessados.Select(p=>string.Concat("O produto ", p.Produto, ", com o fornecedor ", p.Fornecedor, " não foram processados"))));
-            return Ok(produtoCadastrado);
+            var pedidosParaCadastrar = new List<PedidoEntity>();
+            var pedidosResponse = new PedidoLoteResponse();
+            var mensagens = new List<string>();
+            foreach (var item in produtoNovo)
+            {
+                ProdutoEntity produto = null;
+                FornecedorEntity fornecedor = null;
+                if (item.Produto.HasValue)
+                    produto = await _compraFacade.BuscarProdutoPorId(item.Produto);
+                if (item.Fornecedor.HasValue)
+                    fornecedor = await _compraFacade.BuscarFornecedorPorId(item.Fornecedor);
+                if (fornecedor != null && produto != null)
+                {
+                    item.CodigoPedido = ultimoCodigoPedido;
+                    item.DataPedido = DateTime.Now;
+                    item.ValorPedido = item.QuantidadeProduto * produto.Valor;
+                    pedidosParaCadastrar.Add(item);
+                }
+                else
+                {
+                    if (fornecedor == null)
+                        mensagens.Add(string.Concat("O fornecedor ", item.Fornecedor, " não foi processado pois não foi encontrado"));
+                    if (produto == null)
+                        mensagens.Add(string.Concat("O produto ", item.Produto, " não foi processado pois não foi encontrado"));
+                }
+            }
+
+            var pedidoCadastrado = await _compraFacade.CadastrarPedido(pedidosParaCadastrar);
+            pedidosResponse.CodigoPedido = ultimoCodigoPedido;
+            pedidosResponse.Mensagens = mensagens.Any() ? mensagens : pedidoCadastrado.Select(p => string.Concat("Produdo vinculado ", p.Produto, " vinculado ao pedido")).ToList();
+            pedidosResponse.Itens = _pedidoMapper.ToListResponse(pedidoCadastrado);
+            if (pedidoCadastrado.Any())
+                return StatusCode(201, pedidosResponse);
+            else
+                throw new ProblemaException(400, string.Join(", ", pedidosResponse.Mensagens));
         }
         catch (ProblemaException pex)
         {
