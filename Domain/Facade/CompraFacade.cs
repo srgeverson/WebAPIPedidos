@@ -27,13 +27,27 @@ public class CompraFacade : ICompraFacade
 
     public async Task<IList<PedidoEntity>> AlterarPedido(IList<PedidoEntity> pedidos)
     {
-        var pedidosCadastratos = new List<PedidoEntity>();
+        var pedidosAlteradoos = new List<PedidoEntity>();
+        ProdutoEntity produto;
+        FornecedorEntity fornecedor;
         foreach (var item in pedidos)
         {
-            var pedidoCadastrado = await _pedidoService.Atualizar(item);
-            pedidosCadastratos.Add(pedidoCadastrado);
+            if (item.Produto.HasValue)
+                produto = await _produtoService.BuscarPorId((int)item.Produto);
+            else
+                produto = null;
+            
+            var itemAdicionado = await _pedidoService.BuscarPorId(new PedidoId() { CodigoPedido = item.CodigoPedido, Fornecedor = item.Fornecedor, Produto = item.Produto });
+            if (itemAdicionado != null && produto != null)
+            {
+                item.ValorPedido = item.QuantidadeProduto * produto.Valor;
+                var pedidoCadastrado = await _pedidoService.Atualizar(item);
+                pedidosAlteradoos.Add(pedidoCadastrado);
+            }
+            else
+                pedidosAlteradoos.Add(item);
         }
-        return pedidosCadastratos;
+        return pedidosAlteradoos;
     }
 
     public async Task<IList<PedidoEntity>> CadastrarPedido(IList<PedidoEntity> pedidos)
@@ -42,7 +56,6 @@ public class CompraFacade : ICompraFacade
         var ultimoCodigoPedido = await _pedidoService.UltimoCodigoPedido();
         ProdutoEntity produto;
         FornecedorEntity fornecedor;
-        //PedidoEntity pedidoCadastrado;
         foreach (var item in pedidos)
         {
             if (item.Produto.HasValue)
@@ -53,9 +66,12 @@ public class CompraFacade : ICompraFacade
                 fornecedor = await _fornecedorService.BuscarPorId((int)item.Fornecedor);
             else
                 fornecedor = null;
-            if (fornecedor != null || produto != null)
+            var itensAdicionados = await _pedidoService.BuscarPorId(new PedidoId() { CodigoPedido = ultimoCodigoPedido, Fornecedor = item.Fornecedor, Produto = item.Produto });
+            if (fornecedor != null && produto != null && itensAdicionados == null)
             {
                 item.CodigoPedido = ultimoCodigoPedido;
+                item.DataPedido = DateTime.Now;
+                item.ValorPedido = item.QuantidadeProduto * produto.Valor;
                 var pedidoCadastrado = await _pedidoService.Salvar(item);
                 pedidosCadastratos.Add(pedidoCadastrado);
             }

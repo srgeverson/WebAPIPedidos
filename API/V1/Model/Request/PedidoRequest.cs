@@ -22,7 +22,7 @@ namespace WebAPIPedidos.API.V1.Model.Request
         /// </summary>
         [Required(ErrorMessage = "Este campo é obrigatório")]
         [DefaultValue(10)]
-        public int? Quantidade { get => _quantidade; set => _quantidade = value; }
+        public int? QuantidadeProduto { get => _quantidade; set => _quantidade = value; }
         /// <summary>
         /// CNPJ do Fornecedor
         /// </summary>

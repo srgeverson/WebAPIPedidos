@@ -139,7 +139,7 @@ public class PedidoController : ControllerBase
                 var idEntity = _pedidoMapper.ToListIdEntity(id);
                 var produtoExistente = await _compraFacade.ConsultarPedido(idEntity);
                 if (produtoExistente == null)
-                    throw new ProblemaException(404, String.Format("Pedido com ID = {0} não foi encontrado!", id));
+                    throw new ProblemaException(404, String.Format("Pedido com ID = {0}, produto = {1} e fornecedor = {2} não foi encontrado!", id.CodigoPedido, id.Fornecedor, id.Produto));
                 else
                     return Ok(produtoExistente);
             }
@@ -170,6 +170,9 @@ public class PedidoController : ControllerBase
         {
             var produtoNovo = _pedidoMapper.ToListEntity(request);
             var produtoCadastrado = await _compraFacade.CadastrarPedido(produtoNovo);
+            var itensProcessados = produtoCadastrado.Where(p => p.CodigoPedido == null);
+            if (itensProcessados.Count() > 0)
+                throw new ProblemaException(400, string.Join(",", itensProcessados.Select(p=>string.Concat("O produto ", p.Produto, ", com o fornecedor ", p.Fornecedor, " não foram processados"))));
             return Ok(produtoCadastrado);
         }
         catch (ProblemaException pex)
