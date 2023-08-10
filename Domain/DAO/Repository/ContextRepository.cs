@@ -11,6 +11,7 @@ public class ContextRepository : DbContext
     }
     public virtual DbSet<FornecedorEntity> Fornecedores { get; set; }
     public virtual DbSet<ProdutoEntity> Produtos { get; set; }
+    public virtual DbSet<PedidoEntity> Pedidos { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

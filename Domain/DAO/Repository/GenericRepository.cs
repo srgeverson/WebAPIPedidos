@@ -12,6 +12,9 @@ public interface IGenericRepository<T, P> where T : class
 public class GenericRepository<T, P> : IGenericRepository<T, P> where T : class
 {
     private ContextRepository _contextRepository = null;
+
+    public ContextRepository ContextRepository { get => _contextRepository; }
+
     public GenericRepository(ContextRepository context)
     {
         _contextRepository = context;
