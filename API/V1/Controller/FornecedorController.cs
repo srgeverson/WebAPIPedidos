@@ -37,13 +37,13 @@ public class FornecedorController : ControllerBase
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
     [HttpDelete("apagar"), MapToApiVersion("1.0")]
-    public async Task<IActionResult> ApagarPorId([FromQuery] int? id)
+    public async Task<IActionResult> ApagarPorId([FromQuery] long? id)
     {
         try
         {
             if (id.HasValue)
             {
-                var fornecedorExistente = await _fornecedorService.BuscarPorId((int)id);
+                var fornecedorExistente = await _fornecedorService.BuscarPorId(id);
                 if (fornecedorExistente == null)
                     throw new ProblemaException(404, String.Format("Fornecedor com CNPJ = {0} não foi encontrado!", id));
                 else
