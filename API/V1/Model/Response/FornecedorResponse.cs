@@ -7,6 +7,7 @@ namespace WebAPIPedidos.API.V1.Model.Response;
 public class FornecedorResponse
 {
     private long? _cnpj;
+    private string? _razaoSocial;
     private string? _uf;
     private string? _emailContato;
     private string? _nomeContato;
@@ -16,6 +17,11 @@ public class FornecedorResponse
     /// </summary>
     [DefaultValue(12123123123412)]
     public long? Cnpj { get => _cnpj; set => _cnpj = value; }
+    /// <summary>
+    /// Nome de registro da empresa
+    /// </summary>
+    [DefaultValue("Alimentos LTDA")]
+    public string? RazaoSocial { get => _razaoSocial; set => _razaoSocial = value; }
     /// <summary>
     /// UF do forncedor
     /// </summary>

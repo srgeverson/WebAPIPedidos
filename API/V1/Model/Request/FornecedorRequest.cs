@@ -10,6 +10,7 @@ namespace WebAPIPedidos.API.V1.Model.Request
     public class FornecedorRequest
     {
         private long? _cnpj;
+        private string? _razaoSocial;
         private string? _uf;
         private string? _emailContato;
         private string? _nomeContato;
@@ -20,6 +21,11 @@ namespace WebAPIPedidos.API.V1.Model.Request
         [Required(ErrorMessage = "Este campo é obrigatório")]
         [DefaultValue(12123123123412)]
         public long? Cnpj { get => _cnpj; set => _cnpj = value; }
+        /// <summary>
+        /// Nome de registro da empresa
+        /// </summary>
+        [DefaultValue("Alimentos LTDA")]
+        public string? RazaoSocial { get => _razaoSocial; set => _razaoSocial = value; }
         /// <summary>
         /// UF do forncedor
         /// </summary>
