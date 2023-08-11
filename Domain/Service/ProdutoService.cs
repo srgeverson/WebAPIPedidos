@@ -38,6 +38,8 @@ namespace WebAPIPedidos.Domain.Service
 
         public async Task<ProdutoEntity> Salvar(ProdutoEntity model)
         {
+            if (model.DataCadastro == null)
+                model.DataCadastro = DateTime.Now;
             var producoCadastrado = await _produtoRepositoty.Insert(model);
             return producoCadastrado;
         }
