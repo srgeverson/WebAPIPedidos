@@ -86,6 +86,18 @@ builder.Services.AddScoped<IProdutoMapper, ProdutoMapper>();
 builder.Services.AddScoped<IPedidoMapper, PedidoMapper>();
 #endregion
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy
+        .AllowAnyOrigin()
+        //.WithOrigins("http://localhost:3000", "https://localhost:3000", "http://localhost:1433", "https://localhost:1433", "http://srgeverson.github.io/", "https://srgeverson.github.io/")
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddControllers();
 
 var app = builder.Build();
@@ -100,6 +112,8 @@ app.UseSwaggerUI(options =>
 });
 
 app.UseHttpsRedirection();
+
+app.UseCors();
 
 app.UseAuthorization();
 
