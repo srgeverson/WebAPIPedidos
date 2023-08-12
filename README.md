@@ -60,7 +60,23 @@ $ Update-Database
 
 ```bash
 
+# Clonando o repositório
+$ git clone https://github.com/srgeverson/WebAPIPedidos.git
 
+# Entrando na pasta criada
+$ cd WebAPIPedidos/
+
+# Executanto a aplicação localmente
+$ dotnet run
+
+# Abrindo o swagger da aplicação
+$ start https://localhost:7111/swagger/index.html
+
+# Publicar automaticamente se integrado com Azure DevOps basta fazer o merge ou push com a branch main
+$ git checkout -f -d && git checkout main && git fetch origin && git pull && git merge origin/develop
+
+# Para abrir o swagger da aplicação na Azure DevOps
+$ start https://webapipedidos.azurewebsites.net/swagger/index.html 
 
 ```
 
