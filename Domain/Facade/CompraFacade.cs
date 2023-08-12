@@ -1,5 +1,4 @@
-﻿using System.Security.Principal;
-using WebAPIPedidos.API.V1.ExceptionHandler;
+﻿using WebAPIPedidos.API.V1.ExceptionHandler;
 using WebAPIPedidos.Domain.Model.DTO;
 using WebAPIPedidos.Domain.Model.Entity;
 using WebAPIPedidos.Domain.Service;
@@ -118,6 +117,7 @@ public class CompraFacade : ICompraFacade
                 pedido.Fornecedor = item.Id.Fornecedor;
                 pedido.Produto = item.Id.Produto;
                 pedido.DataPedido = DateTime.Now;
+                pedido.QuantidadeProduto = item.QuantidadeProduto;
                 pedido.ValorPedido = item.QuantidadeProduto * produto.Valor;
                 var produtoExistente = await this.BuscarPedidoPorId(new PedidoId() { CodigoPedido = pedido.CodigoPedido, Fornecedor = pedido.Fornecedor, Produto = pedido.Produto });
                 if (!produtoExistente.Any())
