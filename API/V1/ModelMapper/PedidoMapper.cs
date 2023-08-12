@@ -10,6 +10,7 @@ namespace WebAPIPedidos.API.V1.ModelMapper;
 public interface IPedidoMapper
 {
     PedidoEntity ToEntity(PedidoRequest request);
+    PedidoId ToIdEnity(PedidoIdRequest id);
     IList<PedidoEntity> ToListEntity(PedidoLoteRequest request);
     PedidoId ToListIdEntity(PedidoIdRequest id);
     IList<PedidoResponse> ToListResponse(IList<PedidoEntity> pedidoCadastrado);
@@ -25,6 +26,16 @@ public class PedidoMapper : Profile, IPedidoMapper
         });
         var mapper = new Mapper(config);
         return mapper.Map<PedidoEntity>(request);
+    }
+
+    public PedidoId ToIdEnity(PedidoIdRequest id)
+    {
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.CreateMap<PedidoIdRequest, PedidoId>();
+        });
+        var mapper = new Mapper(config);
+        return mapper.Map<PedidoId>(id);
     }
 
     public IList<PedidoEntity> ToListEntity(PedidoLoteRequest request)

@@ -83,59 +83,26 @@ public class PedidoController : ControllerBase
     {
         try
         {
-            
             var produtoNovo = _pedidoMapper.ToListEntity(request);
-            var pedidosParaCadastrar = new List<PedidoEntity>();
-            var pedidosParaAlterar = new List<PedidoEntity>();
-            var pedidosParaExcluir = new List<PedidoEntity>();
-            var pedidosResponse = new PedidoLoteResponse();
-            var mensagens = new List<string>();
-            foreach (var item in produtoNovo)
-            {
-                ProdutoEntity produto = null;
-                FornecedorEntity fornecedor = null;
-                if (item.Produto.HasValue)
-                    produto = await _compraFacade.BuscarProdutoPorId(item.Produto);
-                if (item.Fornecedor.HasValue)
-                    fornecedor = await _compraFacade.BuscarFornecedorPorId(item.Fornecedor);
-                if (fornecedor != null && produto != null)
-                {
-                    item.CodigoPedido = id.CodigoPedido;
-                    item.DataPedido = DateTime.Now;
-                    item.ValorPedido = item.QuantidadeProduto * produto.Valor;
-                    var produtoExistente = await _compraFacade.BuscarPedidoPorId(new PedidoId() { CodigoPedido = item.CodigoPedido, Fornecedor = item.Fornecedor, Produto = item.Produto });
-                    if (!produtoExistente.Any())
-                        pedidosParaCadastrar.Add(item);
-                    else
-                    {
-                        if (item.ValorPedido > 0)
-                            pedidosParaAlterar.Add(item);
-                        else
-                            pedidosParaExcluir.Add(item);
-                    }
-                }
-                else
-                {
-                    if (fornecedor == null)
-                        mensagens.Add(string.Concat("O fornecedor ", item.Fornecedor, " não foi processado pois não foi encontrado"));
-                    if (produto == null)
-                        mensagens.Add(string.Concat("O produto ", item.Produto, " não foi processado pois não foi encontrado"));
-                }
-            }
+            var pedidoId = _pedidoMapper.ToIdEnity(id);
+            var pedidoAlterado = await _compraFacade.AlterarPedido(produtoNovo, pedidoId);
 
-            var pedidoAlterado = await _compraFacade.AlterarPedido(pedidosParaAlterar);
-            var pedidoCadastrado = await _compraFacade.CadastrarPedido(pedidosParaCadastrar);
-            var pedidoExcluido = await _compraFacade.ExcluirPedido(pedidosParaExcluir);
+            var pedidosResponse = new PedidoLoteResponse();
             pedidosResponse.CodigoPedido = id.CodigoPedido;
-            mensagens.AddRange(pedidosParaAlterar.Select(p => string.Concat("Produdo ", p.Produto, " alterado no pedido")).ToList());
-            mensagens.AddRange(pedidosParaAlterar.Select(p => string.Concat("Produdo ", p.Produto, " incluído no pedido")).ToList());
-            mensagens.AddRange(pedidosParaExcluir.Select(p => string.Concat("Produdo ", p.Produto, " removido do pedido")).ToList());
+            
+            var mensagens = new List<string>();
+            mensagens = pedidoAlterado.Criticas.ToList();
+            mensagens.AddRange(pedidoAlterado.PedidosParaAlterar.Select(p => string.Concat("Produdo ", p.Produto, " alterado no pedido")).ToList());
+            mensagens.AddRange(pedidoAlterado.PedidosParaCadastrar.Select(p => string.Concat("Produdo ", p.Produto, " incluído no pedido")).ToList());
+            mensagens.AddRange(pedidoAlterado.PedidosParaExcluir.Select(p => string.Concat("Produdo ", p.Produto, " removido do pedido")).ToList());
             pedidosResponse.Mensagens = mensagens;
+            
             var pedidosAlterado = new List<PedidoResponse>();
-            pedidosAlterado.AddRange(_pedidoMapper.ToListResponse(pedidoAlterado));
-            pedidosAlterado.AddRange(_pedidoMapper.ToListResponse(pedidoCadastrado));
-            pedidosAlterado.AddRange(_pedidoMapper.ToListResponse(pedidoExcluido));
+            pedidosAlterado.AddRange(_pedidoMapper.ToListResponse(pedidoAlterado.PedidosParaAlterar));
+            pedidosAlterado.AddRange(_pedidoMapper.ToListResponse(pedidoAlterado.PedidosParaCadastrar));
+            pedidosAlterado.AddRange(_pedidoMapper.ToListResponse(pedidoAlterado.PedidosParaExcluir));
             pedidosResponse.Itens = pedidosAlterado;
+            
             if (pedidosAlterado.Any())
                 return Ok(pedidosResponse);
             else
@@ -245,40 +212,19 @@ public class PedidoController : ControllerBase
     {
         try
         {
-            var ultimoCodigoPedido = await _compraFacade.UltimoCodigoPedido();
             var produtoNovo = _pedidoMapper.ToListEntity(request);
-            var pedidosParaCadastrar = new List<PedidoEntity>();
+            var pedidoCadastrado = await _compraFacade.CadastrarPedido(produtoNovo);
+            
             var pedidosResponse = new PedidoLoteResponse();
+            pedidosResponse.CodigoPedido = pedidoCadastrado.CodigoPedido;
+            
             var mensagens = new List<string>();
-            foreach (var item in produtoNovo)
-            {
-                ProdutoEntity produto = null;
-                FornecedorEntity fornecedor = null;
-                if (item.Produto.HasValue)
-                    produto = await _compraFacade.BuscarProdutoPorId(item.Produto);
-                if (item.Fornecedor.HasValue)
-                    fornecedor = await _compraFacade.BuscarFornecedorPorId(item.Fornecedor);
-                if (fornecedor != null && produto != null)
-                {
-                    item.CodigoPedido = ultimoCodigoPedido;
-                    item.DataPedido = DateTime.Now;
-                    item.ValorPedido = item.QuantidadeProduto * produto.Valor;
-                    pedidosParaCadastrar.Add(item);
-                }
-                else
-                {
-                    if (fornecedor == null)
-                        mensagens.Add(string.Concat("O fornecedor ", item.Fornecedor, " não foi processado pois não foi encontrado"));
-                    if (produto == null)
-                        mensagens.Add(string.Concat("O produto ", item.Produto, " não foi processado pois não foi encontrado"));
-                }
-            }
-
-            var pedidoCadastrado = await _compraFacade.CadastrarPedido(pedidosParaCadastrar);
-            pedidosResponse.CodigoPedido = ultimoCodigoPedido;
-            pedidosResponse.Mensagens = mensagens.Any() ? mensagens : pedidoCadastrado.Select(p => string.Concat("Produdo vinculado ", p.Produto, " vinculado ao pedido")).ToList();
-            pedidosResponse.Itens = _pedidoMapper.ToListResponse(pedidoCadastrado);
-            if (pedidoCadastrado.Any())
+            mensagens = pedidoCadastrado.Criticas.ToList();
+            mensagens.AddRange(pedidoCadastrado.PedidosParaCadastrar.Select(p => string.Concat("Produdo vinculado ", p.Produto, " vinculado ao pedido")).ToList());
+            pedidosResponse.Mensagens = mensagens;
+            pedidosResponse.Itens = _pedidoMapper.ToListResponse(pedidoCadastrado.PedidosParaCadastrar);
+            
+            if (pedidoCadastrado.PedidosParaCadastrar.Any())
                 return StatusCode(201, pedidosResponse);
             else
                 throw new ProblemaException(400, string.Join(", ", pedidosResponse.Mensagens));

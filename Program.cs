@@ -59,7 +59,7 @@ builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwa
 builder.Services.AddSingleton<IConfiguration>(_ => builder.Configuration);
 
 #region DAOs
-var conexao = Environment.GetEnvironmentVariable("URL_DB_WebAPIPedidos");
+var conexao = Environment.GetEnvironmentVariable("URL_DB_WebAPIPedidos_Azure");
 builder.Services.AddDbContextPool<ContextRepository>(options =>
 {
     options.UseSqlServer(conexao, providerOptions => { providerOptions.EnableRetryOnFailure(); });
