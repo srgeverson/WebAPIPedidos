@@ -1,5 +1,4 @@
-﻿using WebAPIPedidos.API.V1.ExceptionHandler;
-using WebAPIPedidos.Domain.Model.DTO;
+﻿using WebAPIPedidos.Domain.Model.DTO;
 using WebAPIPedidos.Domain.Model.Entity;
 using WebAPIPedidos.Domain.Service;
 
@@ -11,7 +10,6 @@ public interface ICompraFacade
     Task<IList<PedidoEntity>> BuscarPedidoPorId(PedidoId pedidoId);
     Task<ProdutoEntity> BuscarProdutoPorId(int? produto);
     Task<CadastrarPedidoDTO> CadastrarPedido(IList<PedidoEntity> pedidos);
-    Task<IList<PedidoEntity>> ExcluirPedido(PedidoId id);
     Task<IList<PedidoEntity>> ExcluirPedido(IList<PedidoEntity> pedidos);
     Task<IList<PedidoEntity>> ListarTodosPedidos();
 }
@@ -153,19 +151,6 @@ public class CompraFacade : ICompraFacade
             var pedidosPorCodigo = await _pedidoService.BuscarPorId(id.CodigoPedido);
             pedidos = pedidosPorCodigo.ToList();
         }
-        return pedidos;
-    }
-
-    public async Task<IList<PedidoEntity>> ExcluirPedido(PedidoId id)
-    {
-        var pedidos = await BuscarPedidoPorId(id);
-        if (pedidos == null)
-            throw new ProblemaException(404, String.Format("Pedido com ID = {0} não foi encontrado!", id));
-        else
-            foreach (var item in pedidos)
-            {
-                await _pedidoService.Apagar(item);
-            }
         return pedidos;
     }
 
