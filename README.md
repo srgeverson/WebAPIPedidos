@@ -1,6 +1,6 @@
 # <a href="https://webapipedidos.azurewebsites.net/swagger/index.html">WebAPIPedidos - API de Gerenciamento de Pedidos</a>
 
-## 📌 Versão 1.0.0
+## 📌 Versão 1.0
 
 ## 💡Pré-requisitos
 Antes de começar, você vai precisar ter instalado em sua máquina as seguintes ferramentas:
