@@ -92,7 +92,8 @@ public class ProdutoController : ControllerBase
                 else
                 {
                     var produtoNovo = _produtoMapper.ToEntity(request);
-                    produtoNovo.Codigo=produto.Codigo;
+                    produtoNovo.Codigo = produto.Codigo;
+                    produtoNovo.DataCadastro = produto.DataCadastro;
                     var produtoAtualizado = await _produtoService.Atualizar(produtoNovo);
                     return Ok(produtoAtualizado);
                 }
