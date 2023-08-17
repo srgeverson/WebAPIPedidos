@@ -153,7 +153,6 @@ public class FornecedorController : ControllerBase
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
     [HttpGet("por-cnpj"), MapToApiVersion("1.0")]
-    [Authorize("2")]
     public async Task<IActionResult> FornecedorPorId([FromQuery] long? cnpj)
     {
         try

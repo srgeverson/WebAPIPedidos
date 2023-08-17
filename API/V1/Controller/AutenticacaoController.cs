@@ -38,7 +38,7 @@ public class AutenticacaoController : ControllerBase
     #endregion
     [HttpPost("login"), MapToApiVersion("1.0")]
     [AllowAnonymous]
-    public async Task<IActionResult> Login([FromBody] UsuarioLoginRequest usuarioLoginRequest)
+    public IActionResult Login([FromBody] UsuarioLoginRequest usuarioLoginRequest)
     {
         try
         {

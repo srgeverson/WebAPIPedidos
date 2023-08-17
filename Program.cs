@@ -84,8 +84,8 @@ builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 #endregion
 
 #region Fachadas
-builder.Services.AddScoped<ICompraFacade, CompraFacade>();
 builder.Services.AddScoped<IAutenticacaoFacade, AutenticacaoFacade>();
+builder.Services.AddScoped<ICompraFacade, CompraFacade>();
 #endregion
 
 #region Mapeamentos
@@ -119,13 +119,6 @@ builder.Services.AddMvc(config =>
 }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 #pragma warning restore ASP5001 // Type or member is obsolete
 
-//builder.Services.AddAuthorization(options =>
-//{
-//    options.AddPolicy("user", policy => policy.RequireClaim("Permissao", "1"));
-//    options.AddPolicy("admin", policy => policy.RequireClaim("Permissao", "2"));
-//});
-
-var key = Encoding.ASCII.GetBytes("261d901b2208e2306405d03a95541b1cb5047266");//Colocar o segredo aqui
 builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -138,7 +131,7 @@ builder.Services.AddAuthentication(x =>
     x.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
+        IssuerSigningKey = new SymmetricSecurityKey(WebAPIPedido.SECRET_KEY),
         ValidateIssuer = false,
         ValidateAudience = false
     };
