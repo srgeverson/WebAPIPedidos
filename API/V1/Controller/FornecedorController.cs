@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
 using WebAPIPedidos.API.V1.ExceptionHandler;
 using WebAPIPedidos.API.V1.Model.Request;
@@ -120,6 +121,7 @@ public class FornecedorController : ControllerBase
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
     [HttpGet("todos"), MapToApiVersion("1.0")]
+    [Authorize(Roles = "1, 2")]
     public async Task<IActionResult> Fornecedores()
     {
         try
@@ -151,6 +153,7 @@ public class FornecedorController : ControllerBase
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
     [HttpGet("por-cnpj"), MapToApiVersion("1.0")]
+    [Authorize("2")]
     public async Task<IActionResult> FornecedorPorId([FromQuery] long? cnpj)
     {
         try

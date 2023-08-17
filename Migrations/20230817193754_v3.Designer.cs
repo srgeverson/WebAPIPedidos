@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebAPIPedidos.Domain.DAO.Repository;
 
@@ -11,9 +12,11 @@ using WebAPIPedidos.Domain.DAO.Repository;
 namespace WebAPIPedidos.Migrations
 {
     [DbContext(typeof(ContextRepository))]
-    partial class ContextRepositoryModelSnapshot : ModelSnapshot
+    [Migration("20230817193754_v3")]
+    partial class v3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -1,9 +1,14 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
+using System.Text;
 using WebAPIPedidos.API.V1.ModelMapper;
 using WebAPIPedidos.Core;
 using WebAPIPedidos.Domain.DAO.Repository;
@@ -66,24 +71,28 @@ builder.Services.AddDbContextPool<ContextRepository>(options =>
     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
 builder.Services.AddTransient<IFornecedorRepositoty, FornecedorRepositoty>();
-builder.Services.AddTransient<IProdutoRepositoty, ProdutoRepositoty>();
 builder.Services.AddTransient<IPedidoRepositoty, PedidoRepositoty>();
+builder.Services.AddTransient<IProdutoRepositoty, ProdutoRepositoty>();
+builder.Services.AddTransient<IUsuarioRepositoty, UsuarioRepositoty>();
 #endregion
 
 #region Servços
 builder.Services.AddScoped<IFornecedorService, FornecedorService>();
-builder.Services.AddScoped<IProdutoService, ProdutoService>();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
+builder.Services.AddScoped<IProdutoService, ProdutoService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 #endregion
 
 #region Fachadas
 builder.Services.AddScoped<ICompraFacade, CompraFacade>();
+builder.Services.AddScoped<IAutenticacaoFacade, AutenticacaoFacade>();
 #endregion
 
 #region Mapeamentos
 builder.Services.AddScoped<IFornecedorMapper, FornecedorMapper>();
 builder.Services.AddScoped<IProdutoMapper, ProdutoMapper>();
 builder.Services.AddScoped<IPedidoMapper, PedidoMapper>();
+builder.Services.AddScoped<IUsuarioMapper, UsuarioMapper>();
 #endregion
 
 builder.Services.AddCors(options =>
@@ -99,6 +108,43 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddControllers();
 
+#region Autorização
+#pragma warning disable ASP5001 // Type or member is obsolete
+builder.Services.AddMvc(config =>
+{
+    var policy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+    config.Filters.Add(new AuthorizeFilter(policy));
+}).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+#pragma warning restore ASP5001 // Type or member is obsolete
+
+//builder.Services.AddAuthorization(options =>
+//{
+//    options.AddPolicy("user", policy => policy.RequireClaim("Permissao", "1"));
+//    options.AddPolicy("admin", policy => policy.RequireClaim("Permissao", "2"));
+//});
+
+var key = Encoding.ASCII.GetBytes("261d901b2208e2306405d03a95541b1cb5047266");//Colocar o segredo aqui
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(x =>
+{
+    x.RequireHttpsMetadata = false;
+    x.SaveToken = true;
+    x.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = false,
+        ValidateAudience = false
+    };
+});
+#endregion
+
 var app = builder.Build();
 
 app.UseSwagger();
@@ -107,14 +153,18 @@ app.UseSwaggerUI(options =>
 {
     foreach (var description in
         app.Services.GetRequiredService<IApiVersionDescriptionProvider>().ApiVersionDescriptions)
-        options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+        options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", string.Format("{0} API de Pedidos",description.GroupName.ToUpperInvariant()));
 });
 
 app.UseHttpsRedirection();
 
-app.UseCors();
+app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
+
+app.UseCors();
 
 app.MapControllers();
 
