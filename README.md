@@ -1,7 +1,5 @@
 # <a href="https://webapipedidos.azurewebsites.net/swagger/index.html">WebAPIPedidos - API de Gerenciamento de Pedidos</a>
 
-## 📌 Versão 1.0.0
-
 ## 💡Pré-requisitos
 Antes de começar, você vai precisar ter instalado em sua máquina as seguintes ferramentas:
 [Git](https://git-scm.com), [.NET Core](https://dotnet.microsoft.com/en-us/download), [SQL Server](https://www.microsoft.com/pt-br/sql-server/sql-server-downloads), [Visual Studio](https://visualstudio.microsoft.com/) ou [VS Code](https://code.visualstudio.com/) e [SQL Server Management Studio](https://docs.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-ver16)
@@ -87,3 +85,7 @@ $ start https://webapipedidos.azurewebsites.net/swagger/index.html
 ## ✒️ Autor
 
 * **Geverson Souza** - [Geverson Souza](https://www.linkedin.com/in/srgeverson/)
+
+## 📌 Versão 1.0.0
+
+É utilizado o [Github](https://github.com/) para controle de versão.
