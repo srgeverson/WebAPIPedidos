@@ -27,6 +27,7 @@ public class AutenticacaoFacade : IAutenticacaoFacade
             return null;
 
         var tokenHandler = new JwtSecurityTokenHandler();
+        var expires = DateTime.UtcNow.AddSeconds(WebAPIPedido.TEMPO_EM_SEGUNDOS_TOKEN);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new Claim[]
@@ -34,13 +35,16 @@ public class AutenticacaoFacade : IAutenticacaoFacade
                     new Claim(ClaimTypes.Name, user.Nome),
                     new Claim(ClaimTypes.Role, "1")
             }),
-            Expires = DateTime.UtcNow.AddSeconds(WebAPIPedido.TEMPO_EM_SEGUNDOS_TOKEN),
+            Expires = expires,
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(WebAPIPedido.SECRET_KEY), SecurityAlgorithms.HmacSha256Signature)
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
         var usuarioLogado = new UsuarioAutenticadoDTO();
-        usuarioLogado.Token = tokenHandler.WriteToken(token);
+        usuarioLogado.Expires_in = expires;
+        //usuarioLogado.Issued_token_type = user.Nome;
+        usuarioLogado.Token_type = "Bearer";
+        usuarioLogado.Access_token = tokenHandler.WriteToken(token);
 
         return usuarioLogado;
     }

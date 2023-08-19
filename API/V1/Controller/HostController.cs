@@ -2,6 +2,7 @@
 using System.Net.Mime;
 using WebAPIPedidos.API.V1.ExceptionHandler;
 using WebAPIPedidos.API.V1.Model.Response;
+using WebAPIPedidos.Core;
 
 namespace WebAPIPedidos.API.V1.Controller;
 
@@ -32,7 +33,7 @@ public class HostController : ControllerBase
             var visualizar = Environment.GetEnvironmentVariable("DATA_VARIAVEIS_VISIVEIS");
             if(!string.IsNullOrEmpty(visualizar) && DateTime.TryParse(visualizar, out _) && DateTime.Now < DateTime.Parse(visualizar))
             {
-                return Ok(new HostResponse() { UrlDB = Environment.GetEnvironmentVariable("URL_DB_WebAPIPedidos"), DataVisualizacaoVariaveis = visualizar });
+                return Ok(new HostResponse() { UrlDB = Environment.GetEnvironmentVariable("URL_DB_WebAPIPedidos"), DataVisualizacaoVariaveis = visualizar, TempoToken = WebAPIPedido.TEMPO_EM_SEGUNDOS_TOKEN, SecretKey = WebAPIPedido.SECRET_KEY });
             }
             else
                 throw new ProblemaException(StatusCodes.Status423Locked, "Operação temporáriamente indisponível");

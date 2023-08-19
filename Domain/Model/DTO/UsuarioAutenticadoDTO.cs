@@ -1,9 +1,13 @@
 ﻿namespace WebAPIPedidos.Domain.Model.DTO;
 public class UsuarioAutenticadoDTO
 {
-    private string? _token;
-    private string? _nome;
+    private string? access_token;
+    private string? issued_token_type;
+    private string? token_type;
+    private DateTime? expires_in;
 
-    public string? Token { get => _token; set => _token = value; }
-    public string? Nome { get => _nome; set => _nome = value; }
+    public string? Access_token { get => access_token; set => access_token = value; }
+    public string? Issued_token_type { get => issued_token_type; set => issued_token_type = value; }
+    public string? Token_type { get => token_type; set => token_type = value; }
+    public DateTime? Expires_in { get => expires_in; set => expires_in = value; }
 }

@@ -2,13 +2,16 @@
 {
     /// <summary>
     /// Representação de um usuário autenticado
+    /// https://datatracker.ietf.org/doc/html/rfc8693#name-response
     /// </summary>
     public class UsuarioAutenticadoResponse
     {
-        private string? _token;
-        private string? _nome;
-
-        public string? Token { get => _token; set => _token = value; }
-        public string? Nome { get => _nome; set => _nome = value; }
+        /// <summary>
+        /// Nome do usuário autenticado
+        /// </summary>
+        public string? access_token { get; set; }
+        public string? issued_token_type { get; set; }
+        public string? token_type { get; set; }
+        public DateTime? expires_in { get; set; }
     }
 }

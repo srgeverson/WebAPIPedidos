@@ -1,14 +1,10 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
-using System.Text;
 using WebAPIPedidos.API.V1.ModelMapper;
 using WebAPIPedidos.Core;
 using WebAPIPedidos.Domain.DAO.Repository;
@@ -41,6 +37,17 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddSwaggerGen(options =>
 {
     options.DocumentFilter<TagDescriptionsDocumentFilter>();
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme()
+    {
+        Type = SecuritySchemeType.OAuth2,
+        Flows = new OpenApiOAuthFlows()
+        {
+            ClientCredentials = new OpenApiOAuthFlow()
+            {
+                TokenUrl = new Uri("https://localhost:44370/v1/Usuario/login"),
+            }
+        }
+    });
     options.OperationFilter<SwaggerDefaultValues>();
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
@@ -108,45 +115,14 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddControllers();
 
-#region Autorização
-#pragma warning disable ASP5001 // Type or member is obsolete
-builder.Services.AddMvc(config =>
-{
-    var policy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-    config.Filters.Add(new AuthorizeFilter(policy));
-}).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-#pragma warning restore ASP5001 // Type or member is obsolete
-
-builder.Services.AddAuthentication(x =>
-{
-    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(x =>
-{
-    x.RequireHttpsMetadata = false;
-    x.SaveToken = true;
-    x.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(WebAPIPedido.SECRET_KEY),
-        ValidateIssuer = false,
-        ValidateAudience = false
-    };
-});
-#endregion
-
 var app = builder.Build();
 
 app.UseSwagger();
 
 app.UseSwaggerUI(options =>
 {
-    foreach (var description in
-        app.Services.GetRequiredService<IApiVersionDescriptionProvider>().ApiVersionDescriptions)
-        options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", string.Format("{0} API de Pedidos",description.GroupName.ToUpperInvariant()));
+    foreach (var description in app.Services.GetRequiredService<IApiVersionDescriptionProvider>().ApiVersionDescriptions)
+        options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", string.Format("{0} API de Pedidos", description.GroupName.ToUpperInvariant()));
 });
 
 app.UseHttpsRedirection();
@@ -156,6 +132,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+//app.Iden
 
 app.UseCors();
 

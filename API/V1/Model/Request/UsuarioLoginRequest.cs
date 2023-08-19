@@ -2,10 +2,22 @@
 {
     public class UsuarioLoginRequest
     {
-        private string? _login;
-        private string? _senha;
-
-        public string? Login { get => _login; set => _login = value; }
-        public string? Senha { get => _senha; set => _senha = value; }
+        //private string? _username;
+        //private string? _password;
+        ///// <summary>
+        ///// Nome da conta/usuário para ser autenticado
+        ///// </summary>
+        //public string? Username { get => _username; set => _username = value; }
+        ///// <summary>
+        ///// Senha da conta/usuário para ser autenticado
+        ///// </summary>
+        //public string? Password { get => _password; set => _password = value; }
+        public string? client_id { get; set; }
+        public string? clientId { get; set; }
+        public string? client_secret { get; set; }
+        public string? clientSecret { get; set; }
+        public string? grant_type { get; set; }
+        public string? username { get; set; }
+        public string? password { get; set; }
     }
 }

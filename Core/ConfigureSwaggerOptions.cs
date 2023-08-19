@@ -13,9 +13,7 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
     public void Configure(SwaggerGenOptions options)
     {
         foreach (var description in provider.ApiVersionDescriptions)
-        {
             options.SwaggerDoc(description.GroupName, CreateInfoForApiVersion(description));
-        }
     }
 
     static OpenApiInfo CreateInfoForApiVersion(ApiVersionDescription description)

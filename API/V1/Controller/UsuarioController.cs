@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
 using WebAPIPedidos.API.V1.ExceptionHandler;
@@ -13,11 +14,11 @@ namespace WebAPIPedidos.API.V1.Controller;
 [ApiVersion("1.0", Deprecated = false)]
 [Route("/v{version:apiVersion}/[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
-public class AutenticacaoController : ControllerBase
+public class UsuarioController : ControllerBase
 {
     private IAutenticacaoFacade _autenticacaoFacade;
     private IUsuarioMapper _usuarioMapper;
-    public AutenticacaoController(IAutenticacaoFacade autenticacaoFacade, IUsuarioMapper usuarioMapper)
+    public UsuarioController(IAutenticacaoFacade autenticacaoFacade, IUsuarioMapper usuarioMapper)
     {
         _autenticacaoFacade = autenticacaoFacade;
         _usuarioMapper = usuarioMapper;
@@ -38,15 +39,26 @@ public class AutenticacaoController : ControllerBase
     #endregion
     [HttpPost("login"), MapToApiVersion("1.0")]
     [AllowAnonymous]
-    public IActionResult Login([FromBody] UsuarioLoginRequest usuarioLoginRequest)
+    [Consumes("application/x-www-form-urlencoded")]
+    public IActionResult Login(
+        //[FromBody]
+        [FromForm]
+
+    //UsuarioLoginRequest usuarioLoginRequest
+        //string data
+        IFormCollection usuarioLoginRequest//, [FromBody] string teste
+                                           //, string username, string password
+                                           //, [FromHeader] IHeaderDictionary header
+        )
     {
         try
         {
-            var usuarioAutenticado = _autenticacaoFacade.Autenticar(usuarioLoginRequest.Login, usuarioLoginRequest.Senha);
-            if (usuarioAutenticado == null)
-                throw new ProblemaException(StatusCodes.Status401Unauthorized, "Acesso não autorizado");
-            var usuarioAutenticadoResponse = _usuarioMapper.ToAutenticadoResponse(usuarioAutenticado);
-            return Ok(usuarioAutenticadoResponse);
+            //var usuarioAutenticado = _autenticacaoFacade.Autenticar(usuarioLoginRequest.Username, usuarioLoginRequest.Password);
+            //if (usuarioAutenticado == null)
+            //    throw new ProblemaException(StatusCodes.Status401Unauthorized, "Acesso não autorizado");
+            //var usuarioAutenticadoResponse = _usuarioMapper.ToAutenticadoResponse(usuarioAutenticado);
+            //return Ok(usuarioAutenticadoResponse);
+            return Ok(usuarioLoginRequest);
         }
         catch (ProblemaException pex)
         {
@@ -54,7 +66,7 @@ public class AutenticacaoController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemaResponse() { Codigo = StatusCodes.Status500InternalServerError, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 }
