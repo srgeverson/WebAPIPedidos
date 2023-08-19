@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
 using WebAPIPedidos.API.V1.ExceptionHandler;
 using WebAPIPedidos.API.V1.Model.Response;
@@ -10,6 +11,7 @@ namespace WebAPIPedidos.API.V1.Controller;
 [ApiVersion("1.0", Deprecated = false)]
 [Route("/v{version:apiVersion}/[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
+[Authorize("ApiScope")]
 public class HostController : ControllerBase
 {
     public HostController() { }
@@ -33,7 +35,17 @@ public class HostController : ControllerBase
             var visualizar = Environment.GetEnvironmentVariable("DATA_VARIAVEIS_VISIVEIS");
             if(!string.IsNullOrEmpty(visualizar) && DateTime.TryParse(visualizar, out _) && DateTime.Now < DateTime.Parse(visualizar))
             {
-                return Ok(new HostResponse() { UrlDB = Environment.GetEnvironmentVariable("URL_DB_WebAPIPedidos"), DataVisualizacaoVariaveis = visualizar, TempoToken = WebAPIPedido.TEMPO_EM_SEGUNDOS_TOKEN, SecretKey = WebAPIPedido.SECRET_KEY });
+                return Ok(
+                    new HostResponse() 
+                    { 
+                        UrlDB = Environment.GetEnvironmentVariable("URL_DB_WebAPIPedidos"), 
+                        DataVisualizacaoVariaveis = visualizar, 
+                        TempoToken = WebAPIPedido.TEMPO_EM_SEGUNDOS_TOKEN, 
+                        SecretKey = WebAPIPedido.SECRET_KEY,
+                        CertificateName = Environment.GetEnvironmentVariable("CERTIFICATE_NAME"),
+                        CertificatePassword = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD"),
+                        UrlAuthorize = Environment.GetEnvironmentVariable("URL_AUTHORIZE")
+                    });
             }
             else
                 throw new ProblemaException(StatusCodes.Status423Locked, "Operação temporáriamente indisponível");

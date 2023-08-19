@@ -61,8 +61,16 @@ public class SwaggerDefaultValues : IOperationFilter
                 {
                     new OpenApiSecurityRequirement
                     {
-                        [new OpenApiSecurityScheme {Reference = new OpenApiReference {Type = ReferenceType.SecurityScheme, Id = "oauth2"}}]
-                            = new[] {"api1"}
+                        [
+                            new OpenApiSecurityScheme 
+                            {
+                                Reference = new OpenApiReference 
+                                {
+                                    Id = "oauth2",
+                                    Type = ReferenceType.SecurityScheme 
+                                }
+                            }
+                        ] = new[] {"api"}
                     }
                 };
         }

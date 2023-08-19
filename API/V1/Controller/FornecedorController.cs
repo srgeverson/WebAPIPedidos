@@ -13,6 +13,7 @@ namespace WebAPIPedidos.API.V1.Controller;
 [ApiVersion("1.0", Deprecated = false)]
 [Route("/v{version:apiVersion}/[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
+[Authorize("ApiScope")]
 public class FornecedorController : ControllerBase
 {
     private IFornecedorService _fornecedorService;
@@ -38,7 +39,6 @@ public class FornecedorController : ControllerBase
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
     [HttpDelete("apagar"), MapToApiVersion("1.0")]
-    [Authorize(Roles = "1, 2")]
     public async Task<IActionResult> ApagarPorId([FromQuery] long? id)
     {
         try
@@ -82,7 +82,6 @@ public class FornecedorController : ControllerBase
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
     [HttpPut("atualizar"), MapToApiVersion("1.0")]
-    [Authorize(Roles = "1, 2")]
     public async Task<IActionResult> AtualizarFornecedor([FromQuery] long? cnpj, [FromBody] FornecedorRequest request)
     {
         try
@@ -123,7 +122,6 @@ public class FornecedorController : ControllerBase
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
     [HttpGet("todos"), MapToApiVersion("1.0")]
-    [Authorize(Roles = "1, 2")]
     public async Task<IActionResult> Fornecedores()
     {
         try
@@ -155,7 +153,6 @@ public class FornecedorController : ControllerBase
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
     [HttpGet("por-cnpj"), MapToApiVersion("1.0")]
-    [Authorize(Roles = "1, 2")]
     public async Task<IActionResult> FornecedorPorId([FromQuery] long? cnpj)
     {
         try
@@ -195,7 +192,6 @@ public class FornecedorController : ControllerBase
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
     [HttpPost("cadastrar"), MapToApiVersion("1.0")]
-    [Authorize(Roles = "1, 2")]
     public async Task<IActionResult> SalvarFornecedor([FromBody] FornecedorRequest? request)
     {
         try

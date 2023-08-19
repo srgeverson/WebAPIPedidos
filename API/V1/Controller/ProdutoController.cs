@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
 using WebAPIPedidos.API.V1.ExceptionHandler;
 using WebAPIPedidos.API.V1.Model.Request;
@@ -12,6 +13,7 @@ namespace WebAPIPedidos.API.V1.Controller;
 [ApiVersion("1.0", Deprecated = false)]
 [Route("/v{version:apiVersion}/[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
+[Authorize("ApiScope")]
 public class ProdutoController : ControllerBase
 {
     private IProdutoService _produtoService;

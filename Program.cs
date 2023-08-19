@@ -1,3 +1,5 @@
+using IdentityServer4.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
@@ -5,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using WebAPIPedidos.API.V1.ModelMapper;
 using WebAPIPedidos.Core;
 using WebAPIPedidos.Domain.DAO.Repository;
@@ -32,6 +35,55 @@ builder.Services.AddVersionedApiExplorer(setup =>
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+#region Autorização
+var certs = new X509Certificate2Collection();
+
+var certName = Environment.GetEnvironmentVariable("CERTIFICATE_NAME");
+if (string.IsNullOrEmpty(certName))
+    certName = "localhost.pfx";
+var certPassword = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
+if (string.IsNullOrEmpty(certPassword))
+    certPassword = "@G12345678";
+if (builder.Environment.IsDevelopment())
+{
+    var fileName = Path.Combine(AppContext.BaseDirectory, certName);
+    if (!File.Exists(fileName))
+        throw new FileNotFoundException("Signing Certificate is missing!");
+    certs.Add(new X509Certificate2(fileName, certPassword));
+}
+else
+{
+    var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+    store.Open(OpenFlags.ReadOnly);
+    certs = store.Certificates.Find(X509FindType.FindByThumbprint, certName, false);
+}
+
+builder.Services
+    .AddIdentityServer()
+    .AddInMemoryClients(new List<Client>
+    {
+        new()
+        {
+            ClientId = "console",
+            ClientSecrets = new List<Secret> {new("secret".Sha256())},
+            AllowedGrantTypes = GrantTypes.ClientCredentials,
+            AllowedScopes = new List<string> {"api"},
+        }
+    })
+    .AddInMemoryApiScopes(new List<ApiScope>
+    {
+        new("api")
+    })
+    .AddInMemoryApiResources(new List<ApiResource>
+    {
+        new("api")
+        {
+            Scopes = new List<string> {"api"}
+        }
+    })
+    .AddSigningCredential(certs.First());
+#endregion
+
 #region Swagger 3.0 https://github.com/microsoft/aspnet-api-versioning/tree/master/samples/aspnetcore/SwaggerSample
 
 builder.Services.AddSwaggerGen(options =>
@@ -44,13 +96,30 @@ builder.Services.AddSwaggerGen(options =>
         {
             ClientCredentials = new OpenApiOAuthFlow()
             {
-                TokenUrl = new Uri("https://localhost:44370/v1/Usuario/login"),
+                TokenUrl = new Uri("https://localhost:44370/connect/token"),
+                Scopes = new Dictionary<string, string> { { "api", "API" } }
             }
         }
     });
     options.OperationFilter<SwaggerDefaultValues>();
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+});
+
+var authorize = Environment.GetEnvironmentVariable("URL_AUTHORIZE");
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = "https://localhost:44370";
+        options.Audience = "api";
+    });
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ApiScope", builder =>
+    {
+        builder.RequireAuthenticatedUser();
+        builder.RequireClaim("scope", "api");
+    });
 });
 
 builder.Services.AddApiVersioning(options =>
@@ -132,10 +201,10 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-//app.Iden
-
 app.UseCors();
 
 app.MapControllers();
+
+app.UseIdentityServer();
 
 app.Run();

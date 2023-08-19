@@ -28,7 +28,7 @@ public class AuthorizeCheckOperationFilter : IOperationFilter
                                     Id = "oauth2"
                                 }
                             },
-                            new List<string>()
+                            new List<string>(){"api"}
                         }
                     }
                 };
