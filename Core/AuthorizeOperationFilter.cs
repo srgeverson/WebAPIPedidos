@@ -12,8 +12,10 @@ public class AuthorizeCheckOperationFilter : IOperationFilter
 
         if (hasAuthorize)
         {
-            operation.Responses.Add(StatusCodes.Status401Unauthorized.ToString(), new OpenApiResponse { Description = "Unauthorized" });
-            operation.Responses.Add(StatusCodes.Status403Forbidden.ToString(), new OpenApiResponse { Description = "Forbidden" });
+            if(!operation.Responses.Where(r => r.Key.Equals(StatusCodes.Status401Unauthorized.ToString())).Any())
+                operation.Responses.Add(StatusCodes.Status401Unauthorized.ToString(), new OpenApiResponse { Description = "Unauthorized" });
+            if(!operation.Responses.Where(r => r.Key.Equals(StatusCodes.Status403Forbidden.ToString())).Any())
+                operation.Responses.Add(StatusCodes.Status403Forbidden.ToString(), new OpenApiResponse { Description = "Forbidden" });
 
             operation.Security = new List<OpenApiSecurityRequirement>
                 {
