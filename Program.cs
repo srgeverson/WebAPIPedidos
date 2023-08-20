@@ -209,6 +209,4 @@ catch(Exception ex)
     Console.WriteLine("Erro ao inicializar a aplicação!!!!!!!!!!!!!!!!!!!!!");
     Console.WriteLine(ex.Message);
     Console.WriteLine(ex.StackTrace);
-    EventLog.WriteEntry("Erro ao inicializar a aplicação!!!!!!!!!!!!!!!!!!!!!", ex.Message);
-    EventLog.WriteEntry("Erro ao inicializar a aplicação!!!!!!!!!!!!!!!!!!!!!", ex.StackTrace);
 }
