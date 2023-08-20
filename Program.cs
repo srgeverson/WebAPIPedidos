@@ -45,11 +45,18 @@ try
     #region Autorização
 
     var certPassword = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
-
+    Console.WriteLine(string.Format("senha = {0}", certPassword));
     var certs = new X509Certificate2Collection();
 
     var certficate = Environment.GetEnvironmentVariable("CERTIFICATE");
-    var certBytes = Convert.FromBase64String(certficate ?? WebAPIPedido.ARQUIVO_PFX);
+
+    Console.WriteLine(string.Format("certficate = {0}", certficate));
+
+    if (string.IsNullOrEmpty(certficate))
+     certficate = WebAPIPedido.ARQUIVO_PFX;
+    Console.WriteLine(string.Format("certficate = {0}", certficate));
+
+    var certBytes = Convert.FromBase64String(certficate);
     var cert = new X509Certificate2(certBytes, certPassword);
     certs.Add(cert);
 
