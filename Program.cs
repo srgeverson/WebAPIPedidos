@@ -45,33 +45,10 @@ var certPassword = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
 
 var certs = new X509Certificate2Collection();
 
-if (isDevelopment)
-{
-
-    var certName = Environment.GetEnvironmentVariable("CERTIFICATE_NAME");
-    if (string.IsNullOrEmpty(certName))
-        certName = "localhost.pfx";
-    if (string.IsNullOrEmpty(certPassword))
-        certPassword = "@G12345678";
-
-    var fileName = Path.Combine(AppContext.BaseDirectory, certName);
-
-    if (!File.Exists(fileName))
-        throw new FileNotFoundException("Signing Certificate is missing!");
-
-    var cert = new X509Certificate2(fileName, certPassword, X509KeyStorageFlags.Exportable);
-    var certString = Convert.ToBase64String(cert.Export(X509ContentType.Pkcs12, certPassword));
-    var certBytes = Convert.FromBase64String(certString);
-    cert = new X509Certificate2(certBytes, certPassword);
-    certs.Add(cert);
-}
-else
-{
-    var certficate = Environment.GetEnvironmentVariable("CERTIFICATE");
-    var certBytes = Convert.FromBase64String(certficate ?? WebAPIPedido.ARQUIVO_PFX);
-    var cert = new X509Certificate2(certBytes, certPassword);
-    certs.Add(cert);
-}
+var certficate = Environment.GetEnvironmentVariable("CERTIFICATE");
+var certBytes = Convert.FromBase64String(certficate ?? WebAPIPedido.ARQUIVO_PFX);
+var cert = new X509Certificate2(certBytes, certPassword);
+certs.Add(cert);
 
 builder.Services
     .AddIdentityServer()
@@ -155,7 +132,7 @@ builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwa
 builder.Services.AddSingleton<IConfiguration>(_ => builder.Configuration);
 
 #region DAOs
-var conexao = Environment.GetEnvironmentVariable("URL_DB_WebAPIPedidos");
+var conexao = Environment.GetEnvironmentVariable("URL_DB_WebAPIPedidos_Azure");
 builder.Services.AddDbContextPool<ContextRepository>(options =>
 {
     options.UseSqlServer(conexao, providerOptions => { providerOptions.EnableRetryOnFailure(); });
