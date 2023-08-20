@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.ConstrainedExecution;
 using System.Security.Cryptography.X509Certificates;
 using WebAPIPedidos.API.V1.ModelMapper;
 using WebAPIPedidos.Core;
@@ -43,32 +44,35 @@ try
     builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
     #region Autorização
-    //Trecho desabilitado por conta da Azure Free Tier if (false)//Trecho desabilitado por conta da Azure Free Tier
-    //Trecho desabilitado por conta da Azure Free Tier {
-    var certPassword = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
-        var certs = new X509Certificate2Collection();
-
+    /*var certificatePassword = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
+    var certificates = new X509Certificate2Collection();
+    if (isDevelopment)
+    {
         var certName = Environment.GetEnvironmentVariable("CERTIFICATE_NAME");
         if (string.IsNullOrEmpty(certName))
             certName = "localhost.pfx";
-        if (string.IsNullOrEmpty(certPassword))
-            certPassword = "@G12345678";
+        if (string.IsNullOrEmpty(certificatePassword))
+            certificatePassword = "@G12345678";
 
         var fileName = Path.Combine(AppContext.BaseDirectory, certName);
 
         if (!File.Exists(fileName))
             throw new FileNotFoundException("Signing Certificate is missing!");
 
-        var cert = new X509Certificate2(fileName, certPassword);
-        certs.Add(cert);
-        //var certString = Convert.ToBase64String(cert.Export(X509ContentType.Pkcs12, certPassword));
-        //var certBytes = Convert.FromBase64String(certString);
-        //cert = new X509Certificate2(certBytes, certPassword, X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
-        //Trecho desabilitado por conta da Azure Free Tier }
-        builder.Services
-        .AddIdentityServer()
-        .AddInMemoryClients(new List<Client>
-        {
+        var certificate = new X509Certificate2(fileName, certificatePassword, X509KeyStorageFlags.Exportable);
+        certificates.Add(certificate);
+    }
+    else
+    {
+        var certificateString = Environment.GetEnvironmentVariable("CERTIFICATE");
+        var certificateBytes = Convert.FromBase64String(certificateString ?? WebAPIPedido.ARQUIVO_PFX);
+        var certificate = new X509Certificate2(certificateBytes, certificatePassword, X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet | X509KeyStorageFlags.Exportable | X509KeyStorageFlags.UserKeySet);
+        certificates.Add(certificate);
+    }*/
+    builder.Services
+    .AddIdentityServer()
+    .AddInMemoryClients(new List<Client>
+    {
         new()
         {
             ClientId = "web-app-pedidos",
@@ -77,20 +81,20 @@ try
             AllowedScopes = new List<string> {"READ","WRITE"},
             AccessTokenLifetime=(int)WebAPIPedido.TEMPO_EM_SEGUNDOS_TOKEN
         }
-        })
-        .AddInMemoryApiScopes(new List<ApiScope>
-        {
+    })
+    .AddInMemoryApiScopes(new List<ApiScope>
+    {
         new("READ"),new("WRITE")
-        })
-        .AddInMemoryApiResources(new List<ApiResource>
-        {
+    })
+    .AddInMemoryApiResources(new List<ApiResource>
+    {
         new(Assembly.GetExecutingAssembly().GetName().Name)
         {
             Scopes = new List<string> {"READ","WRITE"}
         }
-        })
-        .AddSigningCredential(certs.First());
-    //Trecho desabilitado por conta da Azure Free Tier.AddDeveloperSigningCredential();
+    });
+    //.AddSigningCredential(certificates.First());
+    //.AddDeveloperSigningCredential();
     #endregion
 
     #region Swagger 3.0 https://github.com/microsoft/aspnet-api-versioning/tree/master/samples/aspnetcore/SwaggerSample
@@ -217,9 +221,9 @@ try
 
     app.Run();
 }
-catch(Exception ex)
+catch (Exception ex)
 {
-    Console.WriteLine("Erro ao inicializar a aplicação!!!!!!!!!!!!!!!!!!!!!");
+    Console.WriteLine("Error started application!!!!!!!!!!!!!!!!!!!!!");
     Console.WriteLine(ex.Message);
     Console.WriteLine(ex.StackTrace);
 }
