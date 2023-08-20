@@ -45,20 +45,44 @@ try
     #region Autorização
 
     var certPassword = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
-    Console.WriteLine(string.Format("senha = {0}", certPassword));
     var certs = new X509Certificate2Collection();
+    
+    if (isDevelopment)
+    {
+        var certName = Environment.GetEnvironmentVariable("CERTIFICATE_NAME");
+        if (string.IsNullOrEmpty(certName))
+            certName = "localhost.pfx";
+        if (string.IsNullOrEmpty(certPassword))
+            certPassword = "@G12345678";
 
-    var certficate = Environment.GetEnvironmentVariable("CERTIFICATE");
+        var fileName = Path.Combine(AppContext.BaseDirectory, certName);
 
-    Console.WriteLine(string.Format("certficate = {0}", certficate));
+        if (!File.Exists(fileName))
+            throw new FileNotFoundException("Signing Certificate is missing!");
 
-    if (string.IsNullOrEmpty(certficate))
-     certficate = WebAPIPedido.ARQUIVO_PFX;
-    Console.WriteLine(string.Format("certficate = {0}", certficate));
+        var cert = new X509Certificate2(fileName, certPassword, X509KeyStorageFlags.Exportable);
+        var certString = Convert.ToBase64String(cert.Export(X509ContentType.Pkcs12, certPassword));
+        var certBytes = Convert.FromBase64String(certString);
+        cert = new X509Certificate2(certBytes, certPassword, X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
+        certs.Add(cert);
+    }
+    else
+    {
+        Console.WriteLine(string.Format("senha = {0}", certPassword));
 
-    var certBytes = Convert.FromBase64String(certficate);
-    var cert = new X509Certificate2(certBytes, certPassword);
-    certs.Add(cert);
+        var certficate = Environment.GetEnvironmentVariable("CERTIFICATE");
+
+        Console.WriteLine(string.Format("certficate = {0}", certficate));
+
+        if (string.IsNullOrEmpty(certficate))
+        {
+            certficate = WebAPIPedido.ARQUIVO_PFX;
+            Console.WriteLine(string.Format("certficate = {0}", certficate));
+        }
+        var certBytes = Convert.FromBase64String(certficate);
+        var cert = new X509Certificate2(certBytes, certPassword, X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
+        certs.Add(cert);
+    }
 
     builder.Services
         .AddIdentityServer()
@@ -79,7 +103,7 @@ try
         })
         .AddInMemoryApiResources(new List<ApiResource>
         {
-        new( Assembly.GetExecutingAssembly().GetName().Name)
+        new(Assembly.GetExecutingAssembly().GetName().Name)
         {
             Scopes = new List<string> {"READ","WRITE"}
         }
