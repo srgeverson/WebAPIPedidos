@@ -43,12 +43,11 @@ try
     builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
     #region Autorização
-
-    var certPassword = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
-    var certs = new X509Certificate2Collection();
-    
-    if (isDevelopment)
+    if (false)//Trecho desabilitado por conta da Azure Free Tier
     {
+        var certPassword = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
+        var certs = new X509Certificate2Collection();
+
         var certName = Environment.GetEnvironmentVariable("CERTIFICATE_NAME");
         if (string.IsNullOrEmpty(certName))
             certName = "localhost.pfx";
@@ -60,30 +59,12 @@ try
         if (!File.Exists(fileName))
             throw new FileNotFoundException("Signing Certificate is missing!");
 
-        var cert = new X509Certificate2(fileName, certPassword, X509KeyStorageFlags.Exportable);
+        var cert = new X509Certificate2(fileName, certPassword);
+        certs.Add(cert);
         var certString = Convert.ToBase64String(cert.Export(X509ContentType.Pkcs12, certPassword));
         var certBytes = Convert.FromBase64String(certString);
         cert = new X509Certificate2(certBytes, certPassword, X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
-        certs.Add(cert);
     }
-    else
-    {
-        Console.WriteLine(string.Format("senha = {0}", certPassword));
-
-        var certficate = Environment.GetEnvironmentVariable("CERTIFICATE");
-
-        Console.WriteLine(string.Format("certficate = {0}", certficate));
-
-        if (string.IsNullOrEmpty(certficate))
-        {
-            certficate = WebAPIPedido.ARQUIVO_PFX;
-            Console.WriteLine(string.Format("certficate = {0}", certficate));
-        }
-        var certBytes = Convert.FromBase64String(certficate);
-        var cert = new X509Certificate2(certBytes, certPassword, X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
-        certs.Add(cert);
-    }
-
     builder.Services
         .AddIdentityServer()
         .AddInMemoryClients(new List<Client>
@@ -108,7 +89,8 @@ try
             Scopes = new List<string> {"READ","WRITE"}
         }
         })
-        .AddSigningCredential(certs.First());
+        //Trecho desabilitado por conta da Azure Free Tier.AddSigningCredential(certs.First());
+        .AddDeveloperSigningCredential();
     #endregion
 
     #region Swagger 3.0 https://github.com/microsoft/aspnet-api-versioning/tree/master/samples/aspnetcore/SwaggerSample
