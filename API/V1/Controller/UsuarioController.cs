@@ -14,26 +14,25 @@ namespace WebAPIPedidos.API.V1.Controller;
 [Route("/v{version:apiVersion}/[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [Authorize("ApiScope")]
-public class FornecedorController : ControllerBase
+public class UsuarioController : ControllerBase
 {
-    private IFornecedorService _fornecedorService;
-    private IFornecedorMapper _fornecedorMapper;
-
-    public FornecedorController(IFornecedorService fornecedorService, IFornecedorMapper fornecedorMapper)
+    private IUsuarioService _usuarioService;
+    private IUsuarioMapper _usuarioMapper;
+    public UsuarioController(IUsuarioService autenticacaoFacade, IUsuarioMapper usuarioMapper)
     {
-        _fornecedorService = fornecedorService;
-        _fornecedorMapper = fornecedorMapper;
+        _usuarioService = autenticacaoFacade;
+        _usuarioMapper = usuarioMapper;
     }
 
     #region Documentação
     /// <summary>
-    /// Apagar fornecedor por CNPJ.
+    /// Apagar usuário por CNPJ.
     /// </summary>
-    /// <response code="200">Fornecedor encontrado.</response>
+    /// <response code="200">Usuario encontrado.</response>
     /// <response code="400">Dados informados incorretamenten.</response>
     /// <response code="401">Não autorizado.</response>
     /// <response code="403">Não possui permissão.</response>
-    /// <response code="404">Fornecedor não encontrado.</response>
+    /// <response code="404">Usuario não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
     [ProducesResponseType(typeof(PadraoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
@@ -49,14 +48,14 @@ public class FornecedorController : ControllerBase
         {
             if (id.HasValue)
             {
-                var fornecedorExistente = await _fornecedorService.BuscarPorId(id);
+                var fornecedorExistente = await _usuarioService.BuscarPorId(id);
                 if (fornecedorExistente == null)
-                    throw new ProblemaException(404, String.Format("Fornecedor com CNPJ = {0} não foi encontrado!", id));
+                    throw new ProblemaException(404, String.Format("Usuario com CNPJ = {0} não foi encontrado!", id));
                 else
                 {
-                    await _fornecedorService.Apagar(fornecedorExistente);
+                    await _usuarioService.Apagar(fornecedorExistente);
 
-                    return Ok(new PadraoResponse() { Mensagens = new List<string>() { "Fornecedor apagado com sucesso!" } });
+                    return Ok(new PadraoResponse() { Mensagens = new List<string>() { "Usuario apagado com sucesso!" } });
                 }
             }
             else
@@ -64,7 +63,7 @@ public class FornecedorController : ControllerBase
         }
         catch (ProblemaException pex)
         {
-            return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao apagar fornecedor", Descricao = pex.Message });
+            return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao apagar usuário", Descricao = pex.Message });
         }
         catch (Exception ex)
         {
@@ -74,15 +73,15 @@ public class FornecedorController : ControllerBase
 
     #region Documentação
     /// <summary>
-    /// Atualizar fornecedor.
+    /// Atualizar usuário.
     /// </summary>
-    /// <response code="200">Fornecedor encontrado.</response>
+    /// <response code="200">Usuario encontrado.</response>
     /// <response code="400">Dados informados incorretamenten.</response>
     /// <response code="401">Não autorizado.</response>
     /// <response code="403">Não possui permissão.</response>
-    /// <response code="404">Fornecedor não encontrado.</response>
+    /// <response code="404">Usuario não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [ProducesResponseType(typeof(PadraoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FornecedorResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status403Forbidden)]
@@ -96,14 +95,14 @@ public class FornecedorController : ControllerBase
         {
             if (cnpj.HasValue)
             {
-                var fornecedor = await _fornecedorService.BuscarPorId(cnpj);
-                if (fornecedor == null)
-                    throw new ProblemaException(404, String.Format("Fornecedor com ID = {0} não foi encontrado!", cnpj));
+                var usuário = await _usuarioService.BuscarPorId(cnpj);
+                if (usuário == null)
+                    throw new ProblemaException(404, String.Format("Usuario com ID = {0} não foi encontrado!", cnpj));
                 else
                 {
-                    var fornecedorNovo = _fornecedorMapper.ToEntity(request);
-                    fornecedorNovo.Cnpj = cnpj;
-                    var fornecedorAtualizado = await _fornecedorService.Atualizar(fornecedorNovo);
+                    var fornecedorNovo = _usuarioMapper.ToEntity(request);
+                    //fornecedorNovo.Cnpj = cnpj;
+                    var fornecedorAtualizado = await _usuarioService.Atualizar(fornecedorNovo);
                     return Ok(fornecedorAtualizado);
                 }
             }
@@ -112,7 +111,7 @@ public class FornecedorController : ControllerBase
         }
         catch (ProblemaException pex)
         {
-            return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao atualizar fornecedor", Descricao = pex.Message });
+            return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao atualizar usuário", Descricao = pex.Message });
         }
         catch (Exception ex)
         {
@@ -122,13 +121,13 @@ public class FornecedorController : ControllerBase
 
     #region Documentação
     /// <summary>
-    /// Lista todos fornecedores cadastrados.
+    /// Lista todos usuários cadastrados.
     /// </summary>
-    /// <response code="200">Todos fornecedores encontrados.</response>
+    /// <response code="200">Todos usuários encontrados.</response>
     /// <response code="401">Não autorizado.</response>
     /// <response code="403">Não possui permissão.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [ProducesResponseType(typeof(PadraoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IList<FornecedorResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
@@ -138,12 +137,12 @@ public class FornecedorController : ControllerBase
     {
         try
         {
-            var lista = await _fornecedorService.ListarTodos();
+            var lista = await _usuarioService.ListarTodos();
             return Ok(lista);
         }
         catch (ProblemaException pex)
         {
-            return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao consultar todos fornecedor", Descricao = pex.Message });
+            return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao consultar todos usuário", Descricao = pex.Message });
         }
         catch (Exception ex)
         {
@@ -153,15 +152,15 @@ public class FornecedorController : ControllerBase
 
     #region Documentação
     /// <summary>
-    /// Buscar fornecedor por ID.
+    /// Buscar usuário por ID.
     /// </summary>
-    /// <response code="200">Fornecedor encontrado.</response>
+    /// <response code="200">Usuario encontrado.</response>
     /// <response code="400">Dados informados incorretamenten.</response>
     /// <response code="401">Não autorizado.</response>
     /// <response code="403">Não possui permissão.</response>
-    /// <response code="404">Fornecedor não encontrado.</response>
+    /// <response code="404">Usuario não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [ProducesResponseType(typeof(PadraoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FornecedorResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status403Forbidden)]
@@ -175,18 +174,18 @@ public class FornecedorController : ControllerBase
         {
             if (cnpj.HasValue)
             {
-                var fornecedor = await _fornecedorService.BuscarPorId(cnpj);
-                if (fornecedor == null)
-                    throw new ProblemaException(404, String.Format("Fornecedor com ID = {0} não foi encontrado!", cnpj));
+                var usuário = await _usuarioService.BuscarPorId(cnpj);
+                if (usuário == null)
+                    throw new ProblemaException(404, String.Format("Usuario com ID = {0} não foi encontrado!", cnpj));
                 else
-                    return Ok(fornecedor);
+                    return Ok(usuário);
             }
             else
                 throw new ProblemaException(StatusCodes.Status400BadRequest, String.Format("CNPJ = {0} inválido!", cnpj));
         }
         catch (ProblemaException pex)
         {
-            return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao consultar fornecedor por id", Descricao = pex.Message });
+            return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao consultar usuário por id", Descricao = pex.Message });
         }
         catch (Exception ex)
         {
@@ -196,20 +195,18 @@ public class FornecedorController : ControllerBase
 
     #region Documentação
     /// <summary>
-    /// Cadastrar fornecedor.
+    /// Cadastrar usuário.
     /// </summary>
-    /// <response code="201">Fornecedor encontrado.</response>
+    /// <response code="201">Usuario encontrado.</response>
     /// <response code="400">Dados informados incorretamenten.</response>
     /// <response code="401">Não autorizado.</response>
     /// <response code="403">Não possui permissão.</response>
-    /// <response code="404">Fornecedor não encontrado.</response>
-    /// <response code="409">Fornecedor duplicado.</response>
+    /// <response code="409">Usuario duplicado.</response>
     /// <response code="500">Erro interno de sistema.</response>
     [ProducesResponseType(typeof(FornecedorResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
@@ -220,16 +217,16 @@ public class FornecedorController : ControllerBase
         {
             if (request == null)
                 throw new ProblemaException(StatusCodes.Status400BadRequest, "Dados não informado!");
-            var cnpjExistente = await _fornecedorService.BuscarPorId(request.Cnpj);
+            var cnpjExistente = await _usuarioService.BuscarPorId(request.Cnpj);
             if (cnpjExistente != null)
-                throw new ProblemaException(StatusCodes.Status409Conflict, "Fornecedor com o CNPJ informado já está cadastrado!");
-            var fornecedorNovo = _fornecedorMapper.ToEntity(request);
-            var fornecedorCadastrado = await _fornecedorService.Salvar(fornecedorNovo);
+                throw new ProblemaException(StatusCodes.Status409Conflict, "Usuario com o CNPJ informado já está cadastrado!");
+            var fornecedorNovo = _usuarioMapper.ToEntity(request);
+            var fornecedorCadastrado = await _usuarioService.Salvar(fornecedorNovo);
             return Ok(fornecedorCadastrado);
         }
         catch (ProblemaException pex)
         {
-            return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao cadastrar fornecedor", Descricao = pex.Message });
+            return StatusCode(pex.Id, new ProblemaResponse() { Codigo = pex.Id, Mensagem = "Falha ao cadastrar usuário", Descricao = pex.Message });
         }
         catch (Exception ex)
         {
@@ -237,3 +234,4 @@ public class FornecedorController : ControllerBase
         }
     }
 }
+

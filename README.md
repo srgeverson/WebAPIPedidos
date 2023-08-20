@@ -12,6 +12,7 @@ Antes de começar, você vai precisar ter instalado em sua máquina as seguintes
 * **Microsoft.EntityFrameworkCore.SqlServer 7.0.10**
 * **Swashbuckle.AspNetCore 6.5.0**
 * **Microsoft.EntityFrameworkCore.Tools 7.0.10**
+* **IdentityServer4 4.1.2**
 
 ## 🛠️ Constrção da aplicação
 
@@ -52,6 +53,22 @@ $ Add-Migration v1
 # Executar a migração anteriormente gerada
 $ Update-Database
 
+# Generate a self-signed certificate.
+$ openssl req -x509 -newkey rsa:4096 -keyout localhost.key -out localhost.crt -subj "/CN=localhost" -addext "subjectAltName=DNS:localhost,DNS:api-webapipedidos,DNS:webapipedidos"
+$ openssl pkcs12 -export -in localhost.crt -inkey localhost.key -out localhost.pfx -name "Adding API Resources to IdentityServer 5"
+
+# Import the self-signed certificate.
+$ certutil -f -user -importpfx Root localhost.pfx
+
+# Variável de ambiente que armazena nome do arquivo do certificado
+$ setx CERTIFICATE_NAME "NOME_DO_ARQUIVO_AQUI"
+
+# Variável de ambiente que armazena senha do arquivo do certificado
+$ setx CERTIFICATE_PASSWORD "SENHA_DO_ARQUIVO_AQUI"
+
+# Variável de ambiente que armazena URL do servidor de autorização
+$ setx URL_AUTHORIZE "URL_DO_SERVIDOR_AQUI"
+
 ```
 
 ## 🎲 Executando a aplicação
@@ -68,13 +85,16 @@ $ cd WebAPIPedidos/
 $ dotnet run
 
 # Abrindo o swagger da aplicação
-$ start https://localhost:7111/swagger/index.html
+$ start https://localhost:44370/swagger/index.html
 
 # Publicar automaticamente se integrado com Azure DevOps basta fazer o merge ou push com a branch main
 $ git checkout -f -d && git checkout main && git fetch origin && git pull && git merge origin/develop
 
 # Para abrir o swagger da aplicação na Azure DevOps
 $ start https://webapipedidos.azurewebsites.net/swagger/index.html 
+
+#
+$ https://localhost:44370/.well-known/openid-configuration
 
 ```
 

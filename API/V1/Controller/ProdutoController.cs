@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
 using WebAPIPedidos.API.V1.ExceptionHandler;
 using WebAPIPedidos.API.V1.Model.Request;
@@ -12,6 +13,7 @@ namespace WebAPIPedidos.API.V1.Controller;
 [ApiVersion("1.0", Deprecated = false)]
 [Route("/v{version:apiVersion}/[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
+[Authorize("ApiScope")]
 public class ProdutoController : ControllerBase
 {
     private IProdutoService _produtoService;
@@ -29,6 +31,8 @@ public class ProdutoController : ControllerBase
     /// </summary>
     /// <response code="200">Produto encontrado.</response>
     /// <response code="400">Dados informados incorretamenten.</response>
+    /// <response code="401">Não autorizado.</response>
+    /// <response code="403">Não possui permissão.</response>
     /// <response code="404">Produto não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
     [ProducesResponseType(typeof(PadraoResponse), StatusCodes.Status200OK)]
@@ -54,7 +58,7 @@ public class ProdutoController : ControllerBase
                 }
             }
             else
-                throw new ProblemaException(400, String.Format("Código = {0} inválido!", codigo));
+                throw new ProblemaException(StatusCodes.Status400BadRequest, String.Format("Código = {0} inválido!", codigo));
         }
         catch (ProblemaException pex)
         {
@@ -62,7 +66,7 @@ public class ProdutoController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemaResponse() { Codigo = StatusCodes.Status500InternalServerError, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 
@@ -72,6 +76,8 @@ public class ProdutoController : ControllerBase
     /// </summary>
     /// <response code="200">Produto encontrado.</response>
     /// <response code="400">Dados informados incorretamenten.</response>
+    /// <response code="401">Não autorizado.</response>
+    /// <response code="403">Não possui permissão.</response>
     /// <response code="404">Produto não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
     [ProducesResponseType(typeof(ProdutoResponse), StatusCodes.Status200OK)]
@@ -99,7 +105,7 @@ public class ProdutoController : ControllerBase
                 }
             }
             else
-                throw new ProblemaException(400, String.Format("Código = {0} inválido!", codigo));
+                throw new ProblemaException(StatusCodes.Status400BadRequest, String.Format("Código = {0} inválido!", codigo));
         }
         catch (ProblemaException pex)
         {
@@ -107,7 +113,7 @@ public class ProdutoController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemaResponse() { Codigo = StatusCodes.Status500InternalServerError, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 
@@ -116,8 +122,12 @@ public class ProdutoController : ControllerBase
     /// Lista todos produtoes cadastrados.
     /// </summary>
     /// <response code="200">Todos produtoes encontrados.</response>
+    /// <response code="401">Não autorizado.</response>
+    /// <response code="403">Não possui permissão.</response>
     /// <response code="500">Erro interno de sistema.</response>
     [ProducesResponseType(typeof(IList<ProdutoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
     [HttpGet("todos"), MapToApiVersion("1.0")]
@@ -134,7 +144,7 @@ public class ProdutoController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemaResponse() { Codigo = StatusCodes.Status500InternalServerError, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 
@@ -144,10 +154,14 @@ public class ProdutoController : ControllerBase
     /// </summary>
     /// <response code="200">Produto encontrado.</response>
     /// <response code="400">Dados informados incorretamenten.</response>
+    /// <response code="401">Não autorizado.</response>
+    /// <response code="403">Não possui permissão.</response>
     /// <response code="404">Produto não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
     [ProducesResponseType(typeof(ProdutoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
@@ -165,7 +179,7 @@ public class ProdutoController : ControllerBase
                     return Ok(Produto);
             }
             else
-                throw new ProblemaException(400, String.Format("Código = {0} inválido!", codigo));
+                throw new ProblemaException(StatusCodes.Status400BadRequest, String.Format("Código = {0} inválido!", codigo));
         }
         catch (ProblemaException pex)
         {
@@ -173,7 +187,7 @@ public class ProdutoController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemaResponse() { Codigo = StatusCodes.Status500InternalServerError, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 
@@ -183,10 +197,14 @@ public class ProdutoController : ControllerBase
     /// </summary>
     /// <response code="201">Produto encontrado.</response>
     /// <response code="400">Dados informados incorretamenten.</response>
+    /// <response code="401">Não autorizado.</response>
+    /// <response code="403">Não possui permissão.</response>
     /// <response code="409">Produto duplicado.</response>
     /// <response code="500">Erro interno de sistema.</response>
     [ProducesResponseType(typeof(ProdutoResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
@@ -205,7 +223,7 @@ public class ProdutoController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemaResponse() { Codigo = StatusCodes.Status500InternalServerError, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 }
