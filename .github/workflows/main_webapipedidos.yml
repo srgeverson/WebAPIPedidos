@@ -53,5 +53,5 @@ jobs:
         with:
           app-name: 'WebAPIPedidos'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_709BEFF31E35471D82A6B552F340EB12 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_71298578CFF948348B53EBE6D1E259CF }}
           package: .
