@@ -20,15 +20,18 @@ public class HostController : ControllerBase
     /// <summary>
     /// Visualiza as configurãções da aplicação.
     /// </summary>
-    /// <response code="200">Configuração existente.</response>
+    /// <response code="200">Variáveis existentes.</response>
+    /// <response code="401">Não autorizado.</response>
+    /// <response code="403">Não possui permissão.</response>
     /// <response code="423">Operação temporáriamente indisponível.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [ProducesResponseType(typeof(IList<HostResponse>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status423Locked)]
+    [ProducesResponseType(typeof(PadraoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
     [HttpGet("check"), MapToApiVersion("1.0")]
-    public async Task<IActionResult> Host()
+    public IActionResult Host()
     {
         try
         {
@@ -44,6 +47,7 @@ public class HostController : ControllerBase
                         SecretKey = WebAPIPedido.SECRET_KEY,
                         CertificateName = Environment.GetEnvironmentVariable("CERTIFICATE_NAME"),
                         CertificatePassword = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD"),
+                        Certificate = Environment.GetEnvironmentVariable("CERTIFICATE"),
                         UrlAuthorize = Environment.GetEnvironmentVariable("URL_AUTHORIZE")
                     });
             }
@@ -56,7 +60,7 @@ public class HostController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemaResponse() { Codigo = StatusCodes.Status500InternalServerError, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 }

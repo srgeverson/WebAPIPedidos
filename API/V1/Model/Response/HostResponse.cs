@@ -12,6 +12,7 @@
         private string? _certificateName;
         private string? _certificatePassword;
         private string? _urlAuthorize;
+        private string? _certificate;
         /// <summary>
         /// URL de conexão da aplicação
         /// </summary>
@@ -40,5 +41,9 @@
         /// URL do servidor de autotização
         /// </summary>
         public string? UrlAuthorize { get => _urlAuthorize; set => _urlAuthorize = value; }
+        /// <summary>
+        /// Certificado de autorização
+        /// </summary>
+        public string? Certificate { get => _certificate; set => _certificate = value; }
     }
 }

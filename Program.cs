@@ -16,6 +16,10 @@ using WebAPIPedidos.Domain.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var isDevelopment = builder.Environment.IsDevelopment();
+
+var authorize = Environment.GetEnvironmentVariable("URL_AUTHORIZE");
+
 builder.Host.ConfigureAppConfiguration((hostingContext, config) =>
 {
     config
@@ -36,26 +40,37 @@ builder.Services.AddVersionedApiExplorer(setup =>
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 #region Autorização
+
+var certPassword = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
+
 var certs = new X509Certificate2Collection();
 
-var certName = Environment.GetEnvironmentVariable("CERTIFICATE_NAME");
-if (string.IsNullOrEmpty(certName))
-    certName = "localhost.pfx";
-var certPassword = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
-if (string.IsNullOrEmpty(certPassword))
-    certPassword = "@G12345678";
-if (builder.Environment.IsDevelopment())
+if (isDevelopment)
 {
+
+    var certName = Environment.GetEnvironmentVariable("CERTIFICATE_NAME");
+    if (string.IsNullOrEmpty(certName))
+        certName = "localhost.pfx";
+    if (string.IsNullOrEmpty(certPassword))
+        certPassword = "@G12345678";
+
     var fileName = Path.Combine(AppContext.BaseDirectory, certName);
+
     if (!File.Exists(fileName))
         throw new FileNotFoundException("Signing Certificate is missing!");
-    certs.Add(new X509Certificate2(fileName, certPassword));
+
+    var cert = new X509Certificate2(fileName, certPassword, X509KeyStorageFlags.Exportable);
+    var certString = Convert.ToBase64String(cert.Export(X509ContentType.Pkcs12, certPassword));
+    var certBytes = Convert.FromBase64String(certString);
+    cert = new X509Certificate2(certBytes, certPassword);
+    certs.Add(cert);
 }
 else
 {
-    var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
-    store.Open(OpenFlags.ReadOnly);
-    certs = store.Certificates.Find(X509FindType.FindByThumbprint, certName, false);
+    var certficate = Environment.GetEnvironmentVariable("CERTIFICATE");
+    var certBytes = Convert.FromBase64String(certficate ?? WebAPIPedido.ARQUIVO_PFX);
+    var cert = new X509Certificate2(certBytes, certPassword);
+    certs.Add(cert);
 }
 
 builder.Services
@@ -64,21 +79,22 @@ builder.Services
     {
         new()
         {
-            ClientId = "console",
-            ClientSecrets = new List<Secret> {new("secret".Sha256())},
+            ClientId = "web-app-pedidos",
+            ClientSecrets = new List<Secret> {new("7cf8096a9f73781153694fbb7f834eaa".Sha256())},
             AllowedGrantTypes = GrantTypes.ClientCredentials,
-            AllowedScopes = new List<string> {"api"},
+            AllowedScopes = new List<string> {"READ","WRITE"},
+            AccessTokenLifetime=(int)WebAPIPedido.TEMPO_EM_SEGUNDOS_TOKEN
         }
     })
     .AddInMemoryApiScopes(new List<ApiScope>
     {
-        new("api")
+        new("READ"),new("WRITE")
     })
     .AddInMemoryApiResources(new List<ApiResource>
     {
-        new("api")
+        new( Assembly.GetExecutingAssembly().GetName().Name)
         {
-            Scopes = new List<string> {"api"}
+            Scopes = new List<string> {"READ","WRITE"}
         }
     })
     .AddSigningCredential(certs.First());
@@ -96,8 +112,8 @@ builder.Services.AddSwaggerGen(options =>
         {
             ClientCredentials = new OpenApiOAuthFlow()
             {
-                TokenUrl = new Uri("https://localhost:44370/connect/token"),
-                Scopes = new Dictionary<string, string> { { "api", "API" } }
+                TokenUrl = new Uri(string.Format("{0}/connect/token", isDevelopment ? "https://localhost:44370" : authorize)),
+                Scopes = new Dictionary<string, string> { { "READ", "Somente leitura" }, { "WRITE", "Permite qualqur operação" } }
             }
         }
     });
@@ -106,19 +122,18 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
-var authorize = Environment.GetEnvironmentVariable("URL_AUTHORIZE");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.Authority = "https://localhost:44370";
-        options.Audience = "api";
+        options.Authority = isDevelopment ? "https://localhost:44370" : authorize;
+        options.Audience = Assembly.GetExecutingAssembly().GetName().Name;
     });
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("ApiScope", builder =>
     {
         builder.RequireAuthenticatedUser();
-        builder.RequireClaim("scope", "api");
+        builder.RequireClaim("scope", "READ", "READ");
     });
 });
 

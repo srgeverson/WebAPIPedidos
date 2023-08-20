@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
 using WebAPIPedidos.API.V1.ExceptionHandler;
 using WebAPIPedidos.API.V1.Model.Request;
 using WebAPIPedidos.API.V1.Model.Response;
 using WebAPIPedidos.API.V1.ModelMapper;
-using WebAPIPedidos.Domain.Facade;
 using WebAPIPedidos.Domain.Service;
 
 namespace WebAPIPedidos.API.V1.Controller;
@@ -13,6 +13,7 @@ namespace WebAPIPedidos.API.V1.Controller;
 [ApiVersion("1.0", Deprecated = false)]
 [Route("/v{version:apiVersion}/[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
+[Authorize("ApiScope")]
 public class UsuarioController : ControllerBase
 {
     private IUsuarioService _usuarioService;
@@ -29,10 +30,14 @@ public class UsuarioController : ControllerBase
     /// </summary>
     /// <response code="200">Usuario encontrado.</response>
     /// <response code="400">Dados informados incorretamenten.</response>
+    /// <response code="401">Não autorizado.</response>
+    /// <response code="403">Não possui permissão.</response>
     /// <response code="404">Usuario não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
     [ProducesResponseType(typeof(PadraoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
@@ -54,7 +59,7 @@ public class UsuarioController : ControllerBase
                 }
             }
             else
-                throw new ProblemaException(400, String.Format("CNPJ = {0} inválido!", id));
+                throw new ProblemaException(StatusCodes.Status400BadRequest, String.Format("CNPJ = {0} inválido!", id));
         }
         catch (ProblemaException pex)
         {
@@ -62,7 +67,7 @@ public class UsuarioController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemaResponse() { Codigo = StatusCodes.Status500InternalServerError, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 
@@ -72,10 +77,14 @@ public class UsuarioController : ControllerBase
     /// </summary>
     /// <response code="200">Usuario encontrado.</response>
     /// <response code="400">Dados informados incorretamenten.</response>
+    /// <response code="401">Não autorizado.</response>
+    /// <response code="403">Não possui permissão.</response>
     /// <response code="404">Usuario não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
     [ProducesResponseType(typeof(FornecedorResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
@@ -98,7 +107,7 @@ public class UsuarioController : ControllerBase
                 }
             }
             else
-                throw new ProblemaException(400, String.Format("CNPJ = {0} inválido!", cnpj));
+                throw new ProblemaException(StatusCodes.Status400BadRequest, String.Format("CNPJ = {0} inválido!", cnpj));
         }
         catch (ProblemaException pex)
         {
@@ -106,7 +115,7 @@ public class UsuarioController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemaResponse() { Codigo = StatusCodes.Status500InternalServerError, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 
@@ -115,8 +124,12 @@ public class UsuarioController : ControllerBase
     /// Lista todos usuários cadastrados.
     /// </summary>
     /// <response code="200">Todos usuários encontrados.</response>
+    /// <response code="401">Não autorizado.</response>
+    /// <response code="403">Não possui permissão.</response>
     /// <response code="500">Erro interno de sistema.</response>
     [ProducesResponseType(typeof(IList<FornecedorResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
     [HttpGet("todos"), MapToApiVersion("1.0")]
@@ -133,7 +146,7 @@ public class UsuarioController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemaResponse() { Codigo = StatusCodes.Status500InternalServerError, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 
@@ -143,10 +156,14 @@ public class UsuarioController : ControllerBase
     /// </summary>
     /// <response code="200">Usuario encontrado.</response>
     /// <response code="400">Dados informados incorretamenten.</response>
+    /// <response code="401">Não autorizado.</response>
+    /// <response code="403">Não possui permissão.</response>
     /// <response code="404">Usuario não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
     [ProducesResponseType(typeof(FornecedorResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
@@ -164,7 +181,7 @@ public class UsuarioController : ControllerBase
                     return Ok(usuário);
             }
             else
-                throw new ProblemaException(400, String.Format("CNPJ = {0} inválido!", cnpj));
+                throw new ProblemaException(StatusCodes.Status400BadRequest, String.Format("CNPJ = {0} inválido!", cnpj));
         }
         catch (ProblemaException pex)
         {
@@ -172,7 +189,7 @@ public class UsuarioController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemaResponse() { Codigo = StatusCodes.Status500InternalServerError, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 
@@ -182,10 +199,14 @@ public class UsuarioController : ControllerBase
     /// </summary>
     /// <response code="201">Usuario encontrado.</response>
     /// <response code="400">Dados informados incorretamenten.</response>
+    /// <response code="401">Não autorizado.</response>
+    /// <response code="403">Não possui permissão.</response>
     /// <response code="409">Usuario duplicado.</response>
     /// <response code="500">Erro interno de sistema.</response>
     [ProducesResponseType(typeof(FornecedorResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
@@ -195,10 +216,10 @@ public class UsuarioController : ControllerBase
         try
         {
             if (request == null)
-                throw new ProblemaException(400, "Dados não informado!");
+                throw new ProblemaException(StatusCodes.Status400BadRequest, "Dados não informado!");
             var cnpjExistente = await _usuarioService.BuscarPorId(request.Cnpj);
             if (cnpjExistente != null)
-                throw new ProblemaException(409, "Usuario com o CNPJ informado já está cadastrado!");
+                throw new ProblemaException(StatusCodes.Status409Conflict, "Usuario com o CNPJ informado já está cadastrado!");
             var fornecedorNovo = _usuarioMapper.ToEntity(request);
             var fornecedorCadastrado = await _usuarioService.Salvar(fornecedorNovo);
             return Ok(fornecedorCadastrado);
@@ -209,7 +230,7 @@ public class UsuarioController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemaResponse() { Codigo = StatusCodes.Status500InternalServerError, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 }

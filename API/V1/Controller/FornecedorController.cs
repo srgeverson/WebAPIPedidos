@@ -31,10 +31,14 @@ public class FornecedorController : ControllerBase
     /// </summary>
     /// <response code="200">Fornecedor encontrado.</response>
     /// <response code="400">Dados informados incorretamenten.</response>
+    /// <response code="401">Não autorizado.</response>
+    /// <response code="403">Não possui permissão.</response>
     /// <response code="404">Fornecedor não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
     [ProducesResponseType(typeof(PadraoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
@@ -56,7 +60,7 @@ public class FornecedorController : ControllerBase
                 }
             }
             else
-                throw new ProblemaException(400, String.Format("CNPJ = {0} inválido!", id));
+                throw new ProblemaException(StatusCodes.Status400BadRequest, String.Format("CNPJ = {0} inválido!", id));
         }
         catch (ProblemaException pex)
         {
@@ -64,7 +68,7 @@ public class FornecedorController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemaResponse() { Codigo = StatusCodes.Status500InternalServerError, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 
@@ -74,10 +78,14 @@ public class FornecedorController : ControllerBase
     /// </summary>
     /// <response code="200">Fornecedor encontrado.</response>
     /// <response code="400">Dados informados incorretamenten.</response>
+    /// <response code="401">Não autorizado.</response>
+    /// <response code="403">Não possui permissão.</response>
     /// <response code="404">Fornecedor não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [ProducesResponseType(typeof(FornecedorResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PadraoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
@@ -100,7 +108,7 @@ public class FornecedorController : ControllerBase
                 }
             }
             else
-                throw new ProblemaException(400, String.Format("CNPJ = {0} inválido!", cnpj));
+                throw new ProblemaException(StatusCodes.Status400BadRequest, String.Format("CNPJ = {0} inválido!", cnpj));
         }
         catch (ProblemaException pex)
         {
@@ -108,7 +116,7 @@ public class FornecedorController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemaResponse() { Codigo = StatusCodes.Status500InternalServerError, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 
@@ -117,8 +125,12 @@ public class FornecedorController : ControllerBase
     /// Lista todos fornecedores cadastrados.
     /// </summary>
     /// <response code="200">Todos fornecedores encontrados.</response>
+    /// <response code="401">Não autorizado.</response>
+    /// <response code="403">Não possui permissão.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [ProducesResponseType(typeof(IList<FornecedorResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PadraoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
     [HttpGet("todos"), MapToApiVersion("1.0")]
@@ -135,7 +147,7 @@ public class FornecedorController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemaResponse() { Codigo = StatusCodes.Status500InternalServerError, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 
@@ -145,10 +157,14 @@ public class FornecedorController : ControllerBase
     /// </summary>
     /// <response code="200">Fornecedor encontrado.</response>
     /// <response code="400">Dados informados incorretamenten.</response>
+    /// <response code="401">Não autorizado.</response>
+    /// <response code="403">Não possui permissão.</response>
     /// <response code="404">Fornecedor não encontrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [ProducesResponseType(typeof(FornecedorResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PadraoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
@@ -166,7 +182,7 @@ public class FornecedorController : ControllerBase
                     return Ok(fornecedor);
             }
             else
-                throw new ProblemaException(400, String.Format("CNPJ = {0} inválido!", cnpj));
+                throw new ProblemaException(StatusCodes.Status400BadRequest, String.Format("CNPJ = {0} inválido!", cnpj));
         }
         catch (ProblemaException pex)
         {
@@ -174,7 +190,7 @@ public class FornecedorController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemaResponse() { Codigo = StatusCodes.Status500InternalServerError, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 
@@ -184,10 +200,16 @@ public class FornecedorController : ControllerBase
     /// </summary>
     /// <response code="201">Fornecedor encontrado.</response>
     /// <response code="400">Dados informados incorretamenten.</response>
+    /// <response code="401">Não autorizado.</response>
+    /// <response code="403">Não possui permissão.</response>
+    /// <response code="404">Fornecedor não encontrado.</response>
     /// <response code="409">Fornecedor duplicado.</response>
     /// <response code="500">Erro interno de sistema.</response>
     [ProducesResponseType(typeof(FornecedorResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(ProblemaResponse), StatusCodes.Status500InternalServerError)]
     #endregion
@@ -197,10 +219,10 @@ public class FornecedorController : ControllerBase
         try
         {
             if (request == null)
-                throw new ProblemaException(400, "Dados não informado!");
+                throw new ProblemaException(StatusCodes.Status400BadRequest, "Dados não informado!");
             var cnpjExistente = await _fornecedorService.BuscarPorId(request.Cnpj);
             if (cnpjExistente != null)
-                throw new ProblemaException(409, "Fornecedor com o CNPJ informado já está cadastrado!");
+                throw new ProblemaException(StatusCodes.Status409Conflict, "Fornecedor com o CNPJ informado já está cadastrado!");
             var fornecedorNovo = _fornecedorMapper.ToEntity(request);
             var fornecedorCadastrado = await _fornecedorService.Salvar(fornecedorNovo);
             return Ok(fornecedorCadastrado);
@@ -211,7 +233,7 @@ public class FornecedorController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ProblemaResponse() { Codigo = 500, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemaResponse() { Codigo = StatusCodes.Status500InternalServerError, Mensagem = "Ocorreu um erro interno, tente novamente se o problema persistir contate o administrador do sistema", Descricao = ex.Message });
         }
     }
 }

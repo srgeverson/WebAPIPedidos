@@ -54,23 +54,25 @@ public class SwaggerDefaultValues : IOperationFilter
 
         if (hasAuthorize)
         {
-            operation.Responses.Add("401", new OpenApiResponse { Description = "Unauthorized" });
-            operation.Responses.Add("403", new OpenApiResponse { Description = "Forbidden" });
+            if (!operation.Responses.Where(r => r.Key.Equals(StatusCodes.Status401Unauthorized.ToString())).Any())
+                operation.Responses.Add("401", new OpenApiResponse { Description = "Unauthorized" });
+            if (!operation.Responses.Where(r => r.Key.Equals(StatusCodes.Status403Forbidden.ToString())).Any())
+                operation.Responses.Add("403", new OpenApiResponse { Description = "Forbidden" });
 
             operation.Security = new List<OpenApiSecurityRequirement>
                 {
                     new OpenApiSecurityRequirement
                     {
                         [
-                            new OpenApiSecurityScheme 
+                            new OpenApiSecurityScheme
                             {
-                                Reference = new OpenApiReference 
+                                Reference = new OpenApiReference
                                 {
                                     Id = "oauth2",
-                                    Type = ReferenceType.SecurityScheme 
+                                    Type = ReferenceType.SecurityScheme
                                 }
                             }
-                        ] = new[] {"api"}
+                        ] = new[] {"READ","WRITE"}
                     }
                 };
         }
