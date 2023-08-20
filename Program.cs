@@ -43,9 +43,9 @@ try
     builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
     #region Autorização
-    if (false)//Trecho desabilitado por conta da Azure Free Tier
-    {
-        var certPassword = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
+    //Trecho desabilitado por conta da Azure Free Tier if (false)//Trecho desabilitado por conta da Azure Free Tier
+    //Trecho desabilitado por conta da Azure Free Tier {
+    var certPassword = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
         var certs = new X509Certificate2Collection();
 
         var certName = Environment.GetEnvironmentVariable("CERTIFICATE_NAME");
@@ -61,11 +61,11 @@ try
 
         var cert = new X509Certificate2(fileName, certPassword);
         certs.Add(cert);
-        var certString = Convert.ToBase64String(cert.Export(X509ContentType.Pkcs12, certPassword));
-        var certBytes = Convert.FromBase64String(certString);
-        cert = new X509Certificate2(certBytes, certPassword, X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
-    }
-    builder.Services
+        //var certString = Convert.ToBase64String(cert.Export(X509ContentType.Pkcs12, certPassword));
+        //var certBytes = Convert.FromBase64String(certString);
+        //cert = new X509Certificate2(certBytes, certPassword, X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
+        //Trecho desabilitado por conta da Azure Free Tier }
+        builder.Services
         .AddIdentityServer()
         .AddInMemoryClients(new List<Client>
         {
@@ -89,8 +89,8 @@ try
             Scopes = new List<string> {"READ","WRITE"}
         }
         })
-        //Trecho desabilitado por conta da Azure Free Tier.AddSigningCredential(certs.First());
-        .AddDeveloperSigningCredential();
+        .AddSigningCredential(certs.First());
+    //Trecho desabilitado por conta da Azure Free Tier.AddDeveloperSigningCredential();
     #endregion
 
     #region Swagger 3.0 https://github.com/microsoft/aspnet-api-versioning/tree/master/samples/aspnetcore/SwaggerSample
