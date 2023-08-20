@@ -92,9 +92,9 @@ try
         {
             Scopes = new List<string> {"READ","WRITE"}
         }
-    });
+    })
     //.AddSigningCredential(certificates.First());
-    //.AddDeveloperSigningCredential();
+    .AddDeveloperSigningCredential();
     #endregion
 
     #region Swagger 3.0 https://github.com/microsoft/aspnet-api-versioning/tree/master/samples/aspnetcore/SwaggerSample
@@ -109,7 +109,7 @@ try
             {
                 ClientCredentials = new OpenApiOAuthFlow()
                 {
-                    TokenUrl = new Uri(string.Format("{0}/connect/token", isDevelopment ? "https://localhost:44370" : authorize)),
+                    TokenUrl = new Uri(string.Format("{0}/connect/token", isDevelopment ?"" : authorize)),
                     Scopes = new Dictionary<string, string> { { "READ", "Somente leitura" }, { "WRITE", "Permite qualqur operação" } }
                 }
             }
@@ -122,7 +122,7 @@ try
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
         {
-            options.Authority = isDevelopment ? "https://localhost:44370" : authorize;
+            options.Authority = isDevelopment ? "" : authorize;
             options.Audience = Assembly.GetExecutingAssembly().GetName().Name;
         });
     builder.Services.AddAuthorization(options =>
