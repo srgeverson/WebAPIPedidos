@@ -6,6 +6,10 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NoWarn>$(NoWarn);1591</NoWarn>
+		<CurrentDate>$([System.DateTime]::Now.ToString("yyyy.MM.dd"))</CurrentDate>
+		<VersionPrefix>1</VersionPrefix>
+		<AssemblyVersion>$(VersionPrefix).$(CurrentDate)</AssemblyVersion>
+		<FileVersion>$(VersionPrefix).$(CurrentDate)</FileVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -22,4 +26,20 @@
 		</PackageReference>
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
 	</ItemGroup>
+
+	<Target Name="IncrementBuildNumber" BeforeTargets="CoreCompile">
+		<!-- Define as versões do assembly -->
+		<PropertyGroup>
+			<AssemblyVersion>$(VersionPrefix).$(CurrentDate)</AssemblyVersion>
+			<FileVersion>$(VersionPrefix).$(CurrentDate)</FileVersion>
+			<Version>$(VersionPrefix).$(CurrentDate)</Version>
+		</PropertyGroup>
+
+		<!-- Log das propriedades definidas -->
+		<Message Text="BuildNumber: $(CurrentDate)" Importance="high" />
+		<Message Text="AssemblyVersion: $(AssemblyVersion)" Importance="high" />
+		<Message Text="FileVersion: $(FileVersion)" Importance="high" />
+		<Message Text="Version: $(Version)" Importance="high" />
+	</Target>
+	
 </Project>
